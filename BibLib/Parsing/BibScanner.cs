@@ -15,10 +15,8 @@ namespace BibLib.Parsing
             this.data = data;
         }
 
-        public char CurrentChar
-        {
-            get => data[position];
-        }
+        public char CurrentChar { get => data[position]; }
+        public int Position { get { return this.position; } }
 
         private char? NextValidChar()
         {
@@ -47,6 +45,10 @@ namespace BibLib.Parsing
                             /* It is a new entry */
                             response = CreateToken(BibTokenType.AtSymbol, tokenPos, "@");
                             increment = 1;
+                            break;
+                        case BibBlock.Field:
+                            response = ScanFieldValue();
+                            increment = 0;
                             break;
                         default:
                             /* It is wrong */
@@ -96,12 +98,28 @@ namespace BibLib.Parsing
                     increment = 1;
                     break;
                 case '=':
-                    response = CreateToken(BibTokenType.Equals, tokenPos, "=");
-                    increment = 1;
+                    if (currentBlock == BibBlock.Field)
+                    {
+                        response = ScanFieldValue();
+                        increment = 0;
+                    }
+                    else
+                    {
+                        response = CreateToken(BibTokenType.Equals, tokenPos, "=");
+                        increment = 1;
+                    }
                     break;
                 case ',':
-                    response = CreateToken(BibTokenType.Comma, tokenPos, ",");
-                    increment = 1;
+                    if (currentBlock == BibBlock.Field)
+                    {
+                        response = ScanFieldValue();
+                        increment = 0;
+                    }
+                    else
+                    {
+                        response = CreateToken(BibTokenType.Comma, tokenPos, ",");
+                        increment = 1;
+                    }
                     break;
                 default:
                     switch (lastToken)
@@ -130,7 +148,9 @@ namespace BibLib.Parsing
                             response = ScanFieldName(BibTokenType.FieldName);
                             break;
                         default:
-                            throw new SyntaxError(position, $"The char \"{CurrentChar}\" is unexpected in current context");
+                            response = ScanComment();
+                            break;
+                            ///throw new SyntaxError(position, $"The char \"{CurrentChar}\" is unexpected in current context");
                     }
                     break;
             }
@@ -139,17 +159,40 @@ namespace BibLib.Parsing
             return response;
         }
 
+        private BibToken ScanComment()
+        {
+            var sb = new StringBuilder();
+            var tokenPos = position;
+            while (position < data.Length && (CurrentChar != '@'))
+            {
+                sb.Append(CurrentChar);
+                position++;
+            }
+            return CreateToken(BibTokenType.Comment, tokenPos, sb.ToString());
+        }
+
         private BibToken ScanFieldValue()
         {
             var sb = new StringBuilder();
             var tokenPos = position;
-            while (position < data.Length && (CurrentChar != '}'))
+            if (lastToken == BibTokenType.OpenBrace)
             {
-                if (CurrentChar == '{')
+                while (position < data.Length && (CurrentChar != '}'))
                 {
-                    sb.Append(ScanEscape());
+                    if (CurrentChar == '{')
+                    {
+                        sb.Append(ScanEscape());
+                    }
+                    else
+                    {
+                        sb.Append(CurrentChar);
+                        position++;
+                    }
                 }
-                else
+            }
+            else
+            {
+                while (position < data.Length && (CurrentChar != ','))
                 {
                     sb.Append(CurrentChar);
                     position++;
@@ -235,6 +278,50 @@ namespace BibLib.Parsing
             lastToken = previousLastToken;
             currentBlock = previousCurrentBlock;
             return result;
+        }
+
+        public string Inspect(int position, int previous, int count)
+        {
+            try
+            {
+                int start;
+                start = (position < previous) ? 0 : position - previous;
+                count = start + count > data.Length ? data.Length - start : count;
+                return data.Substring(start, count);
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public string Inspect(int previous, int count)
+        {
+            try
+            {
+                int start;
+                start = (this.position < previous) ? 0 : this.position - previous;
+                count = start + count > data.Length ? data.Length - start : count;
+                return data.Substring(start, count);
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public string Inspect(int count)
+        {
+            try
+            {
+                int start = this.position;
+                count = start + count > data.Length ? data.Length - start : count;
+                return data.Substring(start, count);
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
     }
 }

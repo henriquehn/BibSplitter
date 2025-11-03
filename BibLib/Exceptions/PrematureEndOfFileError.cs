@@ -10,5 +10,8 @@
         public PrematureEndOfFileError(int position, string message) : base(position, message)
         {
         }
+        public PrematureEndOfFileError(int start, int end, string message) : base(start, end, message)
+        {
+        }
     }
 }

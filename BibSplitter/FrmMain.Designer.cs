@@ -28,48 +28,81 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new Button();
+            this.CmdSplit = new Button();
             this.dataGridView1 = new DataGridView();
             this.panel1 = new Panel();
+            this.CmdConvert = new Button();
+            this.CmdJoin = new Button();
             ((System.ComponentModel.ISupportInitialize)this.dataGridView1).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // button1
+            // CmdSplit
             // 
-            this.button1.Location = new Point(3, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += this.button1_Click;
+            this.CmdSplit.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            this.CmdSplit.Location = new Point(14, 16);
+            this.CmdSplit.Margin = new Padding(3, 4, 3, 4);
+            this.CmdSplit.Name = "CmdSplit";
+            this.CmdSplit.Size = new Size(135, 56);
+            this.CmdSplit.TabIndex = 0;
+            this.CmdSplit.Text = "Separar BibTex por ano";
+            this.CmdSplit.UseVisualStyleBackColor = true;
+            this.CmdSplit.Click += this.button1_Click;
             // 
             // dataGridView1
             // 
             this.dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Dock = DockStyle.Fill;
-            this.dataGridView1.Location = new Point(169, 0);
+            this.dataGridView1.Location = new Point(155, 0);
+            this.dataGridView1.Margin = new Padding(3, 4, 3, 4);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new Size(522, 432);
+            this.dataGridView1.RowHeadersWidth = 51;
+            this.dataGridView1.Size = new Size(635, 576);
             this.dataGridView1.TabIndex = 1;
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.button1);
+            this.panel1.Controls.Add(this.CmdJoin);
+            this.panel1.Controls.Add(this.CmdConvert);
+            this.panel1.Controls.Add(this.CmdSplit);
             this.panel1.Dock = DockStyle.Left;
             this.panel1.Location = new Point(0, 0);
+            this.panel1.Margin = new Padding(3, 4, 3, 4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new Size(169, 432);
+            this.panel1.Size = new Size(155, 576);
             this.panel1.TabIndex = 2;
+            // 
+            // CmdConvert
+            // 
+            this.CmdConvert.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            this.CmdConvert.Location = new Point(14, 80);
+            this.CmdConvert.Margin = new Padding(3, 4, 3, 4);
+            this.CmdConvert.Name = "CmdConvert";
+            this.CmdConvert.Size = new Size(135, 56);
+            this.CmdConvert.TabIndex = 1;
+            this.CmdConvert.Text = "Converter CSV para BibTex";
+            this.CmdConvert.UseVisualStyleBackColor = true;
+            this.CmdConvert.Click += this.button2_Click;
+            // 
+            // CmdJoin
+            // 
+            this.CmdJoin.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            this.CmdJoin.Location = new Point(14, 143);
+            this.CmdJoin.Name = "CmdJoin";
+            this.CmdJoin.Size = new Size(135, 56);
+            this.CmdJoin.TabIndex = 2;
+            this.CmdJoin.Text = "Consolidar BibTex por base";
+            this.CmdJoin.UseVisualStyleBackColor = true;
+            this.CmdJoin.Click += this.CmdJoin_Click;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new SizeF(7F, 15F);
+            this.AutoScaleDimensions = new SizeF(8F, 20F);
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new Size(691, 432);
+            this.ClientSize = new Size(790, 576);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.panel1);
+            this.Margin = new Padding(3, 4, 3, 4);
             this.Name = "Form1";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)this.dataGridView1).EndInit();
@@ -79,8 +112,10 @@
 
         #endregion
 
-        private Button button1;
+        private Button CmdSplit;
         private DataGridView dataGridView1;
         private Panel panel1;
+        private Button CmdConvert;
+        private Button CmdJoin;
     }
 }

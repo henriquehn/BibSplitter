@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibSplitter", "BibSplitter\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibLib", "BibLib\BibLib.csproj", "{0F300164-88CF-459B-992F-BC1727BCC226}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibAnalyzer", "BibAnalyzer\BibAnalyzer.csproj", "{2191C9C9-EA67-427C-BC64-1256FFD73BA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibSettings", "BibSettings\BibSettings.csproj", "{6A3D24F3-4DC7-4310-9AC4-C9734E04CD63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{0F300164-88CF-459B-992F-BC1727BCC226}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F300164-88CF-459B-992F-BC1727BCC226}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F300164-88CF-459B-992F-BC1727BCC226}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2191C9C9-EA67-427C-BC64-1256FFD73BA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2191C9C9-EA67-427C-BC64-1256FFD73BA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2191C9C9-EA67-427C-BC64-1256FFD73BA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2191C9C9-EA67-427C-BC64-1256FFD73BA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A3D24F3-4DC7-4310-9AC4-C9734E04CD63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A3D24F3-4DC7-4310-9AC4-C9734E04CD63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A3D24F3-4DC7-4310-9AC4-C9734E04CD63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A3D24F3-4DC7-4310-9AC4-C9734E04CD63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -28,12 +28,17 @@ namespace BibLib.Parsing
 
         private BibElement ParseEntry()
         {
-
-            var currentToken = Parse(BibTokenType.AtSymbol, BibTokenType.EndOfFile);
-            if (currentToken.Type == BibTokenType.EndOfFile)
+            BibToken currentToken;
+            do
             {
-                return null;
-            }
+                currentToken = Parse(BibTokenType.AtSymbol, BibTokenType.EndOfFile, BibTokenType.Comment);
+
+                if (currentToken.Type == BibTokenType.EndOfFile)
+                {
+                    return null;
+                }
+            } while (currentToken.Type != BibTokenType.AtSymbol);
+
             var entryType = Parse(BibTokenType.EntryType);
             var type = Enum.Parse<BibType>(entryType.Value, ignoreCase: true);
             Parse(BibTokenType.OpenBrace);
@@ -53,12 +58,30 @@ namespace BibLib.Parsing
                     var fieldName = Parse(BibTokenType.FieldName, BibTokenType.CloseBrace);
 
                     Parse(BibTokenType.Equals);
-                    Parse(BibTokenType.OpenBrace);
-                    var fieldValue = Parse(BibTokenType.FieldValue).Value;
-                    Parse(BibTokenType.CloseBrace);
-                    if (!result.ContainsKey(fieldName.Value))
+                    var nextToken = Parse(BibTokenType.OpenBrace, BibTokenType.FieldValue, BibTokenType.Comma);
+                    string fieldValue;
+                    if (nextToken.Type != BibTokenType.Comma)
                     {
-                        result.Add(fieldName.Value, fieldValue);
+                        if (nextToken.Type == BibTokenType.OpenBrace)
+                        {
+                            if (Peek(BibTokenType.CloseBrace))
+                            {
+                                fieldValue = string.Empty;
+                            }
+                            else
+                            {
+                                fieldValue = Parse(BibTokenType.FieldValue).Value;
+                            }
+                            Parse(BibTokenType.CloseBrace);
+                        }
+                        else
+                        {
+                            fieldValue = nextToken.Value;
+                        }
+                        if (!result.ContainsKey(fieldName.Value))
+                        {
+                            result.Add(fieldName.Value, fieldValue);
+                        }
                     }
                 }
             }
@@ -69,10 +92,18 @@ namespace BibLib.Parsing
 
         private BibToken Parse(params BibTokenType[] expectedTokens)
         {
+            var lastPosition = this.scanner.Position;
             var token = scanner.NextToken();
             if (!expectedTokens.Contains(token.Type))
             {
-                throw new SyntaxError(token.Position, $"{expectedTokens.Join(" or ")} was expected but {token.Type} was found");
+                if (token.Type == BibTokenType.EndOfFile)
+                {
+                    throw new PrematureEndOfFileError(token.Position, this.scanner.Position, $"Unexpected end of file: {expectedTokens.Join(" or ")} was expected but {token.Type} was found");
+                }
+                else
+                {
+                    throw new SyntaxError(token.Position, this.scanner.Position, $"{expectedTokens.Join(" or ")} was expected but {token.Type} was found");
+                }
             }
             return token;
         }

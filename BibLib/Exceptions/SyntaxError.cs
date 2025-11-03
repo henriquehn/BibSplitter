@@ -3,16 +3,25 @@
     [Serializable]
     public class SyntaxError : Exception
     {
-        public int Position { get; }
+        public int StartPosition { get; }
+        public int EndPosition { get; }
 
         public SyntaxError(int position): base($"Syntax arror at char {position}")
         {
-            this.Position = position;
+            this.StartPosition = position;
+            this.EndPosition = position;
         }
 
         public SyntaxError(int position, string message): base($"Syntax arror at char {position}: {message}")
         {
-            this.Position = position;
+            this.StartPosition = position;
+            this.EndPosition = position;
+        }
+
+        public SyntaxError(int start, int end, string message): base($"Syntax arror at char range from {start} to {end}: {message}")
+        {
+            this.StartPosition = start;
+            this.EndPosition = end;
         }
     }
 }

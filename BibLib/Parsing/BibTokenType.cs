@@ -3,6 +3,7 @@
     public enum BibTokenType
     {
         None,
+        Comment,
         AtSymbol,
         EntryType,
         OpenBrace,
@@ -11,6 +12,6 @@
         Equals,
         FieldName,
         FieldValue,
-        EndOfFile
+        EndOfFile,
     }
 }
