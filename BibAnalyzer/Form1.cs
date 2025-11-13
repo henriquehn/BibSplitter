@@ -8,9 +8,39 @@ namespace BibAnalyzer
     public partial class Form1 : Form
     {
         private static readonly string defaultPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        private readonly ClipboardMonitor clipboardMonitor;
         private List<BibElement> validEntries = [];
         private List<BibElement> invalidEntries = [];
         private List<BibElement> undefinedEntries = [];
+        private string lastClipboardContent = string.Empty;
+        public string LastClipbardContent
+        {
+            get => lastClipboardContent;
+            set
+            {
+                if (!string.Equals(lastClipboardContent, value, StringComparison.OrdinalIgnoreCase))
+                {
+                    lastClipboardContent = value;
+                    UpdateFilter();
+                }
+            }
+        }
+
+        private void UpdateFilter()
+        {
+            if (InvokeRequired)
+            {
+                this.BeginInvoke(new Action(UpdateFilter));
+                return;
+            }
+            else
+            {
+                if (checkClipboard)
+                {
+                    Filter = lastClipboardContent;
+                }
+            }
+        }
 
         private static string LastPath
         {
@@ -25,6 +55,8 @@ namespace BibAnalyzer
         }
 
         private string filter = string.Empty;
+        private bool checkClipboard;
+
         public string Filter
         {
             get => filter;
@@ -72,6 +104,16 @@ namespace BibAnalyzer
         public Form1()
         {
             InitializeComponent();
+            this.clipboardMonitor = new ClipboardMonitor();
+            clipboardMonitor.ClipboardChanged += (s, e) =>
+            {
+                LastClipbardContent = e.Text;
+            };
+        }
+
+        ~Form1()
+        {
+            clipboardMonitor.Dispose();
         }
 
         private void cmdBrowseFolder_Click(object sender, EventArgs e)
@@ -187,6 +229,16 @@ namespace BibAnalyzer
         private void Form1_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void timerClipboardMonitor_Tick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chkClipboardMonitor_CheckedChanged(object sender, EventArgs e)
+        {
+            this.checkClipboard = chkClipboardMonitor.Checked;
         }
     }
 }

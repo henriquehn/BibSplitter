@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.panel1 = new Panel();
+            this.chkClipboardMonitor = new CheckBox();
             this.cmdBrowseFolder = new Button();
             this.tableLayoutPanel1 = new TableLayoutPanel();
             this.panel4 = new Panel();
@@ -60,13 +61,25 @@
             // panel1
             // 
             this.panel1.BackColor = Color.Black;
+            this.panel1.Controls.Add(this.chkClipboardMonitor);
             this.panel1.Controls.Add(this.cmdBrowseFolder);
             this.panel1.Dock = DockStyle.Left;
             this.panel1.ForeColor = Color.White;
             this.panel1.Location = new Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new Size(147, 538);
+            this.panel1.Size = new Size(208, 538);
             this.panel1.TabIndex = 0;
+            // 
+            // chkClipboardMonitor
+            // 
+            this.chkClipboardMonitor.AutoSize = true;
+            this.chkClipboardMonitor.Location = new Point(12, 60);
+            this.chkClipboardMonitor.Name = "chkClipboardMonitor";
+            this.chkClipboardMonitor.Size = new Size(191, 19);
+            this.chkClipboardMonitor.TabIndex = 1;
+            this.chkClipboardMonitor.Text = "Monitorar área de transferência";
+            this.chkClipboardMonitor.UseVisualStyleBackColor = true;
+            this.chkClipboardMonitor.CheckedChanged += this.chkClipboardMonitor_CheckedChanged;
             // 
             // cmdBrowseFolder
             // 
@@ -89,11 +102,11 @@
             this.tableLayoutPanel1.Controls.Add(this.panel2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.panel3, 1, 0);
             this.tableLayoutPanel1.Dock = DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new Point(147, 0);
+            this.tableLayoutPanel1.Location = new Point(208, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new Size(710, 487);
+            this.tableLayoutPanel1.Size = new Size(649, 487);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // panel4
@@ -102,9 +115,9 @@
             this.panel4.Controls.Add(this.label3);
             this.panel4.Controls.Add(this.undefinedEntriesStatus);
             this.panel4.Dock = DockStyle.Fill;
-            this.panel4.Location = new Point(471, 3);
+            this.panel4.Location = new Point(431, 3);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new Size(236, 481);
+            this.panel4.Size = new Size(215, 481);
             this.panel4.TabIndex = 2;
             // 
             // undefinedEntriesGrid
@@ -114,7 +127,7 @@
             this.undefinedEntriesGrid.Dock = DockStyle.Fill;
             this.undefinedEntriesGrid.Location = new Point(0, 23);
             this.undefinedEntriesGrid.Name = "undefinedEntriesGrid";
-            this.undefinedEntriesGrid.Size = new Size(236, 435);
+            this.undefinedEntriesGrid.Size = new Size(215, 435);
             this.undefinedEntriesGrid.TabIndex = 2;
             // 
             // label3
@@ -125,7 +138,7 @@
             this.label3.ForeColor = Color.White;
             this.label3.Location = new Point(0, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new Size(236, 23);
+            this.label3.Size = new Size(215, 23);
             this.label3.TabIndex = 1;
             this.label3.Text = "Indefinido";
             this.label3.TextAlign = ContentAlignment.MiddleCenter;
@@ -135,7 +148,7 @@
             this.undefinedEntriesStatus.Dock = DockStyle.Bottom;
             this.undefinedEntriesStatus.Location = new Point(0, 458);
             this.undefinedEntriesStatus.Name = "undefinedEntriesStatus";
-            this.undefinedEntriesStatus.Size = new Size(236, 23);
+            this.undefinedEntriesStatus.Size = new Size(215, 23);
             this.undefinedEntriesStatus.TabIndex = 3;
             this.undefinedEntriesStatus.Text = "Resultados: 0";
             this.undefinedEntriesStatus.TextAlign = ContentAlignment.MiddleCenter;
@@ -148,7 +161,7 @@
             this.panel2.Dock = DockStyle.Fill;
             this.panel2.Location = new Point(3, 3);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new Size(228, 481);
+            this.panel2.Size = new Size(208, 481);
             this.panel2.TabIndex = 0;
             // 
             // validEntriesGrid
@@ -158,7 +171,7 @@
             this.validEntriesGrid.Dock = DockStyle.Fill;
             this.validEntriesGrid.Location = new Point(0, 23);
             this.validEntriesGrid.Name = "validEntriesGrid";
-            this.validEntriesGrid.Size = new Size(228, 435);
+            this.validEntriesGrid.Size = new Size(208, 435);
             this.validEntriesGrid.TabIndex = 1;
             // 
             // label1
@@ -169,7 +182,7 @@
             this.label1.ForeColor = Color.White;
             this.label1.Location = new Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new Size(228, 23);
+            this.label1.Size = new Size(208, 23);
             this.label1.TabIndex = 0;
             this.label1.Text = "Mais de 5 páginas";
             this.label1.TextAlign = ContentAlignment.MiddleCenter;
@@ -179,7 +192,7 @@
             this.validEntriesStatus.Dock = DockStyle.Bottom;
             this.validEntriesStatus.Location = new Point(0, 458);
             this.validEntriesStatus.Name = "validEntriesStatus";
-            this.validEntriesStatus.Size = new Size(228, 23);
+            this.validEntriesStatus.Size = new Size(208, 23);
             this.validEntriesStatus.TabIndex = 2;
             this.validEntriesStatus.Text = "Resultados: 0";
             this.validEntriesStatus.TextAlign = ContentAlignment.MiddleCenter;
@@ -190,9 +203,9 @@
             this.panel3.Controls.Add(this.label2);
             this.panel3.Controls.Add(this.invalidEntriesStatus);
             this.panel3.Dock = DockStyle.Fill;
-            this.panel3.Location = new Point(237, 3);
+            this.panel3.Location = new Point(217, 3);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new Size(228, 481);
+            this.panel3.Size = new Size(208, 481);
             this.panel3.TabIndex = 1;
             // 
             // invalidEntriesGrid
@@ -202,7 +215,7 @@
             this.invalidEntriesGrid.Dock = DockStyle.Fill;
             this.invalidEntriesGrid.Location = new Point(0, 23);
             this.invalidEntriesGrid.Name = "invalidEntriesGrid";
-            this.invalidEntriesGrid.Size = new Size(228, 435);
+            this.invalidEntriesGrid.Size = new Size(208, 435);
             this.invalidEntriesGrid.TabIndex = 2;
             // 
             // label2
@@ -213,7 +226,7 @@
             this.label2.ForeColor = Color.White;
             this.label2.Location = new Point(0, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new Size(228, 23);
+            this.label2.Size = new Size(208, 23);
             this.label2.TabIndex = 1;
             this.label2.Text = "Menos de 5 páginas";
             this.label2.TextAlign = ContentAlignment.MiddleCenter;
@@ -223,7 +236,7 @@
             this.invalidEntriesStatus.Dock = DockStyle.Bottom;
             this.invalidEntriesStatus.Location = new Point(0, 458);
             this.invalidEntriesStatus.Name = "invalidEntriesStatus";
-            this.invalidEntriesStatus.Size = new Size(228, 23);
+            this.invalidEntriesStatus.Size = new Size(208, 23);
             this.invalidEntriesStatus.TabIndex = 3;
             this.invalidEntriesStatus.Text = "Resultados: 0";
             this.invalidEntriesStatus.TextAlign = ContentAlignment.MiddleCenter;
@@ -234,9 +247,9 @@
             this.panel5.Controls.Add(this.txtFilter);
             this.panel5.Controls.Add(this.label4);
             this.panel5.Dock = DockStyle.Bottom;
-            this.panel5.Location = new Point(147, 487);
+            this.panel5.Location = new Point(208, 487);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new Size(710, 51);
+            this.panel5.Size = new Size(649, 51);
             this.panel5.TabIndex = 2;
             // 
             // txtFilter
@@ -245,7 +258,7 @@
             this.txtFilter.BorderStyle = BorderStyle.FixedSingle;
             this.txtFilter.Location = new Point(6, 21);
             this.txtFilter.Name = "txtFilter";
-            this.txtFilter.Size = new Size(692, 23);
+            this.txtFilter.Size = new Size(631, 23);
             this.txtFilter.TabIndex = 1;
             this.txtFilter.TextChanged += this.txtFilter_TextChanged;
             // 
@@ -270,6 +283,7 @@
             this.Text = "Form1";
             this.Load += this.Form1_Load;
             this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)this.undefinedEntriesGrid).EndInit();
@@ -302,5 +316,6 @@
         private Label undefinedEntriesStatus;
         private Label validEntriesStatus;
         private Label invalidEntriesStatus;
+        private CheckBox chkClipboardMonitor;
     }
 }
