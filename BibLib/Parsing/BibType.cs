@@ -1,4 +1,7 @@
-﻿namespace BibLib.Parsing
+﻿using System.ComponentModel;
+using System.Runtime.Serialization;
+
+namespace BibLib.Parsing
 {
     public enum BibType
     {
@@ -16,6 +19,11 @@
         PhDThesis,
         Proceedings,
         TechReport,
-        Unpublished
+        Unpublished,
+        [Description("Revisão")]
+        Review,
+        [Description("book-chapter")]
+        Book_chapter,
+        Editorial
     }
 }

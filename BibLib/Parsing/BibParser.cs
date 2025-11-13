@@ -6,6 +6,12 @@ namespace BibLib.Parsing
 {
     internal class BibParser
     {
+        private static readonly Dictionary<string, string> SpecialEntries = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Revisão", "Review" },
+            { "book-chapter", "Book_chapter" },
+        };
+
         private readonly BibScanner scanner;
 
         public BibParser(string data)
@@ -40,6 +46,11 @@ namespace BibLib.Parsing
             } while (currentToken.Type != BibTokenType.AtSymbol);
 
             var entryType = Parse(BibTokenType.EntryType);
+            if (SpecialEntries.TryGetValue(entryType.Value, out var mappedValue))
+            {
+                entryType.Value = mappedValue;
+            }
+
             var type = Enum.Parse<BibType>(entryType.Value, ignoreCase: true);
             Parse(BibTokenType.OpenBrace);
             var key = Parse(BibTokenType.FieldName);

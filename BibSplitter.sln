@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibAnalyzer", "BibAnalyzer\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibSettings", "BibSettings\BibSettings.csproj", "{6A3D24F3-4DC7-4310-9AC4-C9734E04CD63}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestLib", "TestLib\TestLib.vbproj", "{6249A838-1359-4EB3-9196-15DAD7E82A62}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{6A3D24F3-4DC7-4310-9AC4-C9734E04CD63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A3D24F3-4DC7-4310-9AC4-C9734E04CD63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A3D24F3-4DC7-4310-9AC4-C9734E04CD63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6249A838-1359-4EB3-9196-15DAD7E82A62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6249A838-1359-4EB3-9196-15DAD7E82A62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6249A838-1359-4EB3-9196-15DAD7E82A62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6249A838-1359-4EB3-9196-15DAD7E82A62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
