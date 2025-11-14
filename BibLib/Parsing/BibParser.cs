@@ -1,11 +1,15 @@
 ﻿
+using BibLib.DataModels;
 using BibLib.Exceptions;
 using BibLib.Extensions;
+using BibLib.Interfaces;
 
 namespace BibLib.Parsing
 {
-    internal class BibParser
+    public class BibParser<T, L, A> where A: IBibAdapter<T, L>, new() where L: new()
     {
+        private readonly A adapter;
+
         private static readonly Dictionary<string, string> SpecialEntries = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Revisão", "Review" },
@@ -16,17 +20,23 @@ namespace BibLib.Parsing
 
         public BibParser(string data)
         {
+            this.adapter = new();
+            this.scanner = new BibScanner(data);
+        }
+        public BibParser(string data, A adapter)
+        {
+            this.adapter = adapter;
             this.scanner = new BibScanner(data);
         }
 
-        public IList<BibElement> Parse()
+        public L Parse()
         {
-            var response = new List<BibElement>();
+            var response = adapter.CreateList();
             BibElement entry;
 
             while ((entry = ParseEntry()) != null)
             {
-                response.Add(entry);
+                adapter.AppendEntry(entry, response);
             }
 
             return response;

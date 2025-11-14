@@ -1,4 +1,4 @@
-﻿namespace BibAnalyzer.Eventos
+﻿namespace BibAnalyzer.Events
 {
     public sealed class ClipboardChangedEventArgs : EventArgs
     {

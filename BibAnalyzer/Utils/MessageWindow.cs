@@ -1,4 +1,4 @@
-﻿namespace BibAnalyzer
+﻿namespace BibAnalyzer.Utils
 {
     public sealed partial class ClipboardMonitor
     {

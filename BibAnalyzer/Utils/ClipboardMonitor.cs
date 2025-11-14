@@ -1,7 +1,7 @@
-﻿using BibAnalyzer.Eventos;
+﻿using BibAnalyzer.Events;
 using System.Runtime.InteropServices;
 
-namespace BibAnalyzer
+namespace BibAnalyzer.Utils
 {
     public sealed partial class ClipboardMonitor : IDisposable
     {

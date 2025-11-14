@@ -1,18 +1,59 @@
+using BibAnalyzer.Utils;
+using BibLib.Adapters;
+using BibLib.DataModels;
 using BibLib.Parsing;
 using BibSettings;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using System.Text;
+using System.Data;
 
 namespace BibAnalyzer
 {
     public partial class Form1 : Form
     {
+        private BibTableAdapter adapter = new();
+        private BibElementAdapter elementAdapter = new();
         private static readonly string defaultPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private readonly ClipboardMonitor clipboardMonitor;
-        private List<BibElement> validEntries = [];
-        private List<BibElement> invalidEntries = [];
-        private List<BibElement> undefinedEntries = [];
+        private readonly DataTable validEntriesTable = BuildBaseTable();
+        private readonly DataView validEntriesView;
+        private readonly object validEntriesLock = new();
+        private readonly DataTable invalidEntriesTable = BuildBaseTable();
+        private readonly DataView invalidEntriesView;
+        private readonly object invalidEntriesLock = new();
+        private readonly DataTable undefinedEntriesTable = BuildBaseTable();
+        private readonly DataView undefinedEntriesView;
+        private readonly object undefinedEntriesLock = new();
         private string lastClipboardContent = string.Empty;
+
+        public Form1()
+        {
+            InitializeComponent();
+            this.clipboardMonitor = new ClipboardMonitor();
+            clipboardMonitor.ClipboardChanged += (s, e) =>
+            {
+                LastClipbardContent = e.Text;
+            };
+            validEntriesView = new(validEntriesTable);
+            invalidEntriesView = new(invalidEntriesTable);
+            undefinedEntriesView = new(undefinedEntriesTable);
+        }
+
+        ~Form1()
+        {
+            clipboardMonitor.Dispose();
+        }
+
+        private static DataTable BuildBaseTable()
+        {
+            var response = new DataTable() { CaseSensitive = false };
+            response.Columns.Add("Key", typeof(string));
+            response.Columns.Add("Type", typeof(string));
+            response.Columns.Add("Title", typeof(string));
+            response.Columns.Add("Author", typeof(string));
+
+            return response;
+        }
+
         public string LastClipbardContent
         {
             get => lastClipboardContent;
@@ -37,7 +78,7 @@ namespace BibAnalyzer
             {
                 if (checkClipboard)
                 {
-                    Filter = lastClipboardContent;
+                    txtFilter.Text = lastClipboardContent;
                 }
             }
         }
@@ -63,57 +104,15 @@ namespace BibAnalyzer
             set
             {
                 filter = value?.Trim() ?? "";
-                if (string.IsNullOrEmpty(filter))
-                {
-                    validEntriesGrid.DataSource = validEntries;
-                    validEntriesStatus.Text = $"Resultados: {validEntries.Count}";
-                    invalidEntriesGrid.DataSource = invalidEntries;
-                    invalidEntriesStatus.Text = $"Resultados: {invalidEntries.Count}";
-                    undefinedEntriesGrid.DataSource = undefinedEntries;
-                    undefinedEntriesStatus.Text = $"Resultados: {undefinedEntries.Count}";
-                }
-                else
-                {
-                    List<BibElement> entries = FilterEntries(validEntries, filter);
-                    validEntriesGrid.DataSource = entries;
-                    validEntriesStatus.Text = $"Resultados: {entries.Count}";
-                    entries = FilterEntries(invalidEntries, filter);
-                    invalidEntriesGrid.DataSource = entries;
-                    invalidEntriesStatus.Text = $"Resultados: {entries.Count}";
-                    entries = FilterEntries(undefinedEntries, filter);
-                    undefinedEntriesGrid.DataSource = entries;
-                    undefinedEntriesStatus.Text = $"Resultados: {entries.Count}";
-                }
+                var filterString = DataUtils.BuildBibFilter(filter);
+                validEntriesView.RowFilter = filterString;
+                invalidEntriesView.RowFilter = filterString;
+                undefinedEntriesView.RowFilter = filterString;
+
+                validEntriesStatus.Text = $"Resultados: {validEntriesView.Count}";
+                invalidEntriesStatus.Text = $"Resultados: {invalidEntriesView.Count}";
+                undefinedEntriesStatus.Text = $"Resultados: {undefinedEntriesView.Count}";
             }
-        }
-
-        private List<BibElement> FilterEntries(List<BibElement> entries, string filterText)
-        {
-            var response = new List<BibElement>();
-            foreach (var entry in entries)
-            {
-                if ((entry.Title?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                   (entry.Authors?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false))
-                {
-                    response.Add(entry);
-                }
-            }
-            return response;
-        }
-
-        public Form1()
-        {
-            InitializeComponent();
-            this.clipboardMonitor = new ClipboardMonitor();
-            clipboardMonitor.ClipboardChanged += (s, e) =>
-            {
-                LastClipbardContent = e.Text;
-            };
-        }
-
-        ~Form1()
-        {
-            clipboardMonitor.Dispose();
         }
 
         private void cmdBrowseFolder_Click(object sender, EventArgs e)
@@ -132,24 +131,34 @@ namespace BibAnalyzer
             }
         }
 
-        private void BrowseFiles()
+        private void BindDataSources()
         {
-            string currentFile = null;
-            var directories = Directory.GetDirectories(LastPath);
-            var entries = new List<BibElement>();
+            validEntriesGrid.DataSource = validEntriesView;
+            invalidEntriesGrid.DataSource = invalidEntriesView;
+            undefinedEntriesGrid.DataSource = undefinedEntriesView;
+        }
 
-            if (directories == null || directories.Length == 0)
-            {
-                directories = new string[] { LastPath };
-            }
-
+        private void UnbindDataSources()
+        {
             validEntriesGrid.DataSource = null;
             invalidEntriesGrid.DataSource = null;
             undefinedEntriesGrid.DataSource = null;
+        }
 
-            validEntries.Clear();
-            invalidEntries.Clear();
-            undefinedEntries.Clear();
+        private void BrowseFiles()
+        {
+            string currentFile = null;
+            List<string> directories = [LastPath];
+            directories.AddRange(Directory.GetDirectories(LastPath));
+            BibElements entries = new();
+            BibElements pendingEntries = new();
+
+            UnbindDataSources();
+
+            validEntriesTable.Rows.Clear();
+            invalidEntriesTable.Rows.Clear();
+            undefinedEntriesTable.Rows.Clear();
+
 
             foreach (var path in directories)
             {
@@ -159,7 +168,8 @@ namespace BibAnalyzer
                 {
                     currentFile = file;
                     var data = File.ReadAllText(file);
-                    entries.AddRange(BibConverter.Deserialize(data));
+                    var newEntries = BibConverter<BibElement, BibElements, BibElementAdapter>.Deserialize(data);
+                    entries.AddRange(newEntries);
                 }
             }
 
@@ -169,24 +179,25 @@ namespace BibAnalyzer
             {
                 entry.Title = entry.GetValueOrDefault("title")?.Trim().TrimEnd('.', ' ');
                 entry.Authors = entry.GetValueOrDefault("author")?.Trim().TrimEnd('.', ' ');
+                entry.DOI = entry.GetValueOrDefault("doi")?.Trim().TrimEnd('.', ' ');
 
-                if (entry.ContainsKey("numpages") && int.TryParse(entry["numpages"], out int numpages))
+                if (entry.TryGetValue("numpages", out string value) && int.TryParse(value, out int numpages))
                 {
                     entry.PageCount = numpages;
                     if (numpages >= 5)
                     {
-                        validEntries.Add(entry);
+                        adapter.AppendEntry(entry, validEntriesTable);
                     }
                     else
                     {
-                        invalidEntries.Add(entry);
+                        adapter.AppendEntry(entry, invalidEntriesTable);
                     }
                 }
                 else
                 {
-                    if (entry.ContainsKey("pages"))
+                    if (entry.TryGetValue("pages", out string value1))
                     {
-                        var pages = entry["pages"]?.Replace("--", "-").Split("-");
+                        var pages = value1?.Replace("--", "-").Split("-");
                         if (pages != null &&
                             pages.Length == 2 &&
                             int.TryParse(pages[0], out int startPage) &&
@@ -198,27 +209,82 @@ namespace BibAnalyzer
                             entry.Add("numpages", (endPage - startPage + 1).ToString());
                             if (endPage - startPage >= 4)
                             {
-                                validEntries.Add(entry);
+                                adapter.AppendEntry(entry, validEntriesTable);
                             }
                             else
                             {
-                                invalidEntries.Add(entry);
+                                adapter.AppendEntry(entry, invalidEntriesTable);
                             }
                         }
                         else
                         {
                             entry.PageCount = null;
-                            undefinedEntries.Add(entry);
+                            if (string.IsNullOrEmpty(entry.DOI))
+                            {
+                                adapter.AppendEntry(entry, undefinedEntriesTable);
+                            }
+                            else
+                            {
+                                pendingEntries.Add(entry);
+                            }
                         }
                     }
                     else
                     {
-                        undefinedEntries.Add(entry);
+                        if (string.IsNullOrEmpty(entry.DOI))
+                        {
+                            adapter.AppendEntry(entry, undefinedEntriesTable);
+                        }
+                        else
+                        {
+                            pendingEntries.Add(entry);
+                        }
                     }
                 }
             }
 
+            if (pendingEntries.Count > 0)
+            {
+                var newTask = Task.Run(async () =>
+                {
+                    using (var client = new HttpClient())
+                    {
+                        foreach (var entry in pendingEntries)
+                        {
+                            var count = await CrossrefPageCounter.GetPageCountFromDoiAsync(entry.DOI, client).ConfigureAwait(false);
+                            if (count.HasValue)
+                            {
+                                entry.PageCount = count.Value;
+                                if (count.Value >= 5)
+                                {
+                                    lock (validEntriesLock)
+                                    {
+                                        adapter.AppendEntry(entry, validEntriesTable);
+                                    }
+                                }
+                                else
+                                {
+                                    lock (invalidEntriesLock)
+                                    {
+                                        adapter.AppendEntry(entry, invalidEntriesTable);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                lock (undefinedEntriesLock)
+                                {
+                                    adapter.AppendEntry(entry, undefinedEntriesTable);
+                                }
+                            }
+                        }
+                    }
+                });
+                newTask.Wait();
+            }
+
             Filter = txtFilter.Text;
+            BindDataSources();
         }
 
         private void txtFilter_TextChanged(object sender, EventArgs e)
@@ -231,14 +297,41 @@ namespace BibAnalyzer
 
         }
 
-        private void timerClipboardMonitor_Tick(object sender, EventArgs e)
-        {
-
-        }
-
         private void chkClipboardMonitor_CheckedChanged(object sender, EventArgs e)
         {
             this.checkClipboard = chkClipboardMonitor.Checked;
+        }
+
+        private void cmdSaveValid_Click(object sender, EventArgs e)
+        {
+            Save(validEntriesTable);
+        }
+
+        private void cmdSaveInvalid_Click(object sender, EventArgs e)
+        {
+            Save(invalidEntriesTable);
+        }
+
+        private void cmdSaveUndefined_Click(object sender, EventArgs e)
+        {
+            Save(undefinedEntriesTable);
+        }
+
+        private void Save(DataTable entries)
+        {
+            try
+            {
+                var dlg = new SaveFileDialog();
+                dlg.Filter = "BibTeX files (*.bib)|*.bib";
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    File.WriteAllText(dlg.FileName, BibConverter<DataRow, DataTable, BibTableAdapter>.Serialize(entries));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao salvar o arquivo: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

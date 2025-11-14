@@ -35,15 +35,21 @@
             this.panel4 = new Panel();
             this.undefinedEntriesGrid = new DataGridView();
             this.label3 = new Label();
+            this.panel8 = new Panel();
             this.undefinedEntriesStatus = new Label();
+            this.cmdSaveUndefined = new Button();
             this.panel2 = new Panel();
             this.validEntriesGrid = new DataGridView();
-            this.label1 = new Label();
+            this.panel6 = new Panel();
             this.validEntriesStatus = new Label();
+            this.cmdSaveValid = new Button();
+            this.label1 = new Label();
             this.panel3 = new Panel();
             this.invalidEntriesGrid = new DataGridView();
             this.label2 = new Label();
+            this.panel7 = new Panel();
             this.invalidEntriesStatus = new Label();
+            this.cmdSaveInvalid = new Button();
             this.panel5 = new Panel();
             this.txtFilter = new TextBox();
             this.label4 = new Label();
@@ -51,10 +57,13 @@
             this.tableLayoutPanel1.SuspendLayout();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)this.undefinedEntriesGrid).BeginInit();
+            this.panel8.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)this.validEntriesGrid).BeginInit();
+            this.panel6.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)this.invalidEntriesGrid).BeginInit();
+            this.panel7.SuspendLayout();
             this.panel5.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -86,7 +95,7 @@
             this.cmdBrowseFolder.FlatStyle = FlatStyle.Flat;
             this.cmdBrowseFolder.Location = new Point(12, 12);
             this.cmdBrowseFolder.Name = "cmdBrowseFolder";
-            this.cmdBrowseFolder.Size = new Size(121, 42);
+            this.cmdBrowseFolder.Size = new Size(185, 42);
             this.cmdBrowseFolder.TabIndex = 0;
             this.cmdBrowseFolder.Text = "Selecionar Pasta";
             this.cmdBrowseFolder.UseVisualStyleBackColor = true;
@@ -113,7 +122,7 @@
             // 
             this.panel4.Controls.Add(this.undefinedEntriesGrid);
             this.panel4.Controls.Add(this.label3);
-            this.panel4.Controls.Add(this.undefinedEntriesStatus);
+            this.panel4.Controls.Add(this.panel8);
             this.panel4.Dock = DockStyle.Fill;
             this.panel4.Location = new Point(431, 3);
             this.panel4.Name = "panel4";
@@ -122,12 +131,15 @@
             // 
             // undefinedEntriesGrid
             // 
-            this.undefinedEntriesGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            this.undefinedEntriesGrid.AllowUserToAddRows = false;
+            this.undefinedEntriesGrid.AllowUserToDeleteRows = false;
+            this.undefinedEntriesGrid.AllowUserToOrderColumns = true;
+            this.undefinedEntriesGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.undefinedEntriesGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.undefinedEntriesGrid.Dock = DockStyle.Fill;
             this.undefinedEntriesGrid.Location = new Point(0, 23);
             this.undefinedEntriesGrid.Name = "undefinedEntriesGrid";
-            this.undefinedEntriesGrid.Size = new Size(215, 435);
+            this.undefinedEntriesGrid.Size = new Size(215, 411);
             this.undefinedEntriesGrid.TabIndex = 2;
             // 
             // label3
@@ -143,21 +155,42 @@
             this.label3.Text = "Indefinido";
             this.label3.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // panel8
+            // 
+            this.panel8.Controls.Add(this.undefinedEntriesStatus);
+            this.panel8.Controls.Add(this.cmdSaveUndefined);
+            this.panel8.Dock = DockStyle.Bottom;
+            this.panel8.Location = new Point(0, 434);
+            this.panel8.Name = "panel8";
+            this.panel8.Size = new Size(215, 47);
+            this.panel8.TabIndex = 4;
+            // 
             // undefinedEntriesStatus
             // 
-            this.undefinedEntriesStatus.Dock = DockStyle.Bottom;
-            this.undefinedEntriesStatus.Location = new Point(0, 458);
+            this.undefinedEntriesStatus.Dock = DockStyle.Fill;
+            this.undefinedEntriesStatus.Location = new Point(0, 0);
             this.undefinedEntriesStatus.Name = "undefinedEntriesStatus";
-            this.undefinedEntriesStatus.Size = new Size(215, 23);
+            this.undefinedEntriesStatus.Size = new Size(164, 47);
             this.undefinedEntriesStatus.TabIndex = 3;
             this.undefinedEntriesStatus.Text = "Resultados: 0";
             this.undefinedEntriesStatus.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // cmdSaveUndefined
+            // 
+            this.cmdSaveUndefined.Dock = DockStyle.Right;
+            this.cmdSaveUndefined.Image = Properties.Resources.Save;
+            this.cmdSaveUndefined.Location = new Point(164, 0);
+            this.cmdSaveUndefined.Name = "cmdSaveUndefined";
+            this.cmdSaveUndefined.Size = new Size(51, 47);
+            this.cmdSaveUndefined.TabIndex = 3;
+            this.cmdSaveUndefined.UseVisualStyleBackColor = true;
+            this.cmdSaveUndefined.Click += this.cmdSaveUndefined_Click;
+            // 
             // panel2
             // 
             this.panel2.Controls.Add(this.validEntriesGrid);
+            this.panel2.Controls.Add(this.panel6);
             this.panel2.Controls.Add(this.label1);
-            this.panel2.Controls.Add(this.validEntriesStatus);
             this.panel2.Dock = DockStyle.Fill;
             this.panel2.Location = new Point(3, 3);
             this.panel2.Name = "panel2";
@@ -166,13 +199,47 @@
             // 
             // validEntriesGrid
             // 
-            this.validEntriesGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            this.validEntriesGrid.AllowUserToAddRows = false;
+            this.validEntriesGrid.AllowUserToDeleteRows = false;
+            this.validEntriesGrid.AllowUserToOrderColumns = true;
+            this.validEntriesGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.validEntriesGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.validEntriesGrid.Dock = DockStyle.Fill;
             this.validEntriesGrid.Location = new Point(0, 23);
             this.validEntriesGrid.Name = "validEntriesGrid";
-            this.validEntriesGrid.Size = new Size(208, 435);
+            this.validEntriesGrid.Size = new Size(208, 411);
             this.validEntriesGrid.TabIndex = 1;
+            // 
+            // panel6
+            // 
+            this.panel6.Controls.Add(this.validEntriesStatus);
+            this.panel6.Controls.Add(this.cmdSaveValid);
+            this.panel6.Dock = DockStyle.Bottom;
+            this.panel6.Location = new Point(0, 434);
+            this.panel6.Name = "panel6";
+            this.panel6.Size = new Size(208, 47);
+            this.panel6.TabIndex = 3;
+            // 
+            // validEntriesStatus
+            // 
+            this.validEntriesStatus.Dock = DockStyle.Fill;
+            this.validEntriesStatus.Location = new Point(0, 0);
+            this.validEntriesStatus.Name = "validEntriesStatus";
+            this.validEntriesStatus.Size = new Size(157, 47);
+            this.validEntriesStatus.TabIndex = 2;
+            this.validEntriesStatus.Text = "Resultados: 0";
+            this.validEntriesStatus.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // cmdSaveValid
+            // 
+            this.cmdSaveValid.Dock = DockStyle.Right;
+            this.cmdSaveValid.Image = Properties.Resources.Save;
+            this.cmdSaveValid.Location = new Point(157, 0);
+            this.cmdSaveValid.Name = "cmdSaveValid";
+            this.cmdSaveValid.Size = new Size(51, 47);
+            this.cmdSaveValid.TabIndex = 3;
+            this.cmdSaveValid.UseVisualStyleBackColor = true;
+            this.cmdSaveValid.Click += this.cmdSaveValid_Click;
             // 
             // label1
             // 
@@ -187,21 +254,11 @@
             this.label1.Text = "Mais de 5 páginas";
             this.label1.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // validEntriesStatus
-            // 
-            this.validEntriesStatus.Dock = DockStyle.Bottom;
-            this.validEntriesStatus.Location = new Point(0, 458);
-            this.validEntriesStatus.Name = "validEntriesStatus";
-            this.validEntriesStatus.Size = new Size(208, 23);
-            this.validEntriesStatus.TabIndex = 2;
-            this.validEntriesStatus.Text = "Resultados: 0";
-            this.validEntriesStatus.TextAlign = ContentAlignment.MiddleCenter;
-            // 
             // panel3
             // 
             this.panel3.Controls.Add(this.invalidEntriesGrid);
             this.panel3.Controls.Add(this.label2);
-            this.panel3.Controls.Add(this.invalidEntriesStatus);
+            this.panel3.Controls.Add(this.panel7);
             this.panel3.Dock = DockStyle.Fill;
             this.panel3.Location = new Point(217, 3);
             this.panel3.Name = "panel3";
@@ -210,12 +267,15 @@
             // 
             // invalidEntriesGrid
             // 
-            this.invalidEntriesGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            this.invalidEntriesGrid.AllowUserToAddRows = false;
+            this.invalidEntriesGrid.AllowUserToDeleteRows = false;
+            this.invalidEntriesGrid.AllowUserToOrderColumns = true;
+            this.invalidEntriesGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.invalidEntriesGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.invalidEntriesGrid.Dock = DockStyle.Fill;
             this.invalidEntriesGrid.Location = new Point(0, 23);
             this.invalidEntriesGrid.Name = "invalidEntriesGrid";
-            this.invalidEntriesGrid.Size = new Size(208, 435);
+            this.invalidEntriesGrid.Size = new Size(208, 411);
             this.invalidEntriesGrid.TabIndex = 2;
             // 
             // label2
@@ -231,15 +291,36 @@
             this.label2.Text = "Menos de 5 páginas";
             this.label2.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // panel7
+            // 
+            this.panel7.Controls.Add(this.invalidEntriesStatus);
+            this.panel7.Controls.Add(this.cmdSaveInvalid);
+            this.panel7.Dock = DockStyle.Bottom;
+            this.panel7.Location = new Point(0, 434);
+            this.panel7.Name = "panel7";
+            this.panel7.Size = new Size(208, 47);
+            this.panel7.TabIndex = 4;
+            // 
             // invalidEntriesStatus
             // 
-            this.invalidEntriesStatus.Dock = DockStyle.Bottom;
-            this.invalidEntriesStatus.Location = new Point(0, 458);
+            this.invalidEntriesStatus.Dock = DockStyle.Fill;
+            this.invalidEntriesStatus.Location = new Point(0, 0);
             this.invalidEntriesStatus.Name = "invalidEntriesStatus";
-            this.invalidEntriesStatus.Size = new Size(208, 23);
+            this.invalidEntriesStatus.Size = new Size(157, 47);
             this.invalidEntriesStatus.TabIndex = 3;
             this.invalidEntriesStatus.Text = "Resultados: 0";
             this.invalidEntriesStatus.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // cmdSaveInvalid
+            // 
+            this.cmdSaveInvalid.Dock = DockStyle.Right;
+            this.cmdSaveInvalid.Image = Properties.Resources.Save;
+            this.cmdSaveInvalid.Location = new Point(157, 0);
+            this.cmdSaveInvalid.Name = "cmdSaveInvalid";
+            this.cmdSaveInvalid.Size = new Size(51, 47);
+            this.cmdSaveInvalid.TabIndex = 3;
+            this.cmdSaveInvalid.UseVisualStyleBackColor = true;
+            this.cmdSaveInvalid.Click += this.cmdSaveInvalid_Click;
             // 
             // panel5
             // 
@@ -287,10 +368,13 @@
             this.tableLayoutPanel1.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)this.undefinedEntriesGrid).EndInit();
+            this.panel8.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)this.validEntriesGrid).EndInit();
+            this.panel6.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)this.invalidEntriesGrid).EndInit();
+            this.panel7.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
             this.ResumeLayout(false);
@@ -314,8 +398,16 @@
         private TextBox txtFilter;
         private Label label4;
         private Label undefinedEntriesStatus;
-        private Label validEntriesStatus;
         private Label invalidEntriesStatus;
         private CheckBox chkClipboardMonitor;
+        private Panel panel6;
+        private Button button1;
+        private Label validEntriesStatus;
+        private Panel panel8;
+        private Button button3;
+        private Panel panel7;
+        private Button cmdSaveValid;
+        private Button cmdSaveInvalid;
+        private Button cmdSaveUndefined;
     }
 }
