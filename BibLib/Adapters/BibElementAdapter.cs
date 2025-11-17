@@ -46,5 +46,10 @@ namespace BibLib.Adapters
             sb.AppendLine("}");
             sb.AppendLine();
         }
+
+        public int Count(BibElements entries)
+        {
+            return entries.Count;
+        }
     }
 }

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.panel1 = new Panel();
+            this.CmdTestDownload = new Button();
             this.chkClipboardMonitor = new CheckBox();
             this.cmdBrowseFolder = new Button();
             this.tableLayoutPanel1 = new TableLayoutPanel();
@@ -53,6 +54,12 @@
             this.panel5 = new Panel();
             this.txtFilter = new TextBox();
             this.label4 = new Label();
+            this.statusStrip1 = new StatusStrip();
+            this.lblStatus = new ToolStripStatusLabel();
+            this.lblStep = new ToolStripStatusLabel();
+            this.progressBar = new ToolStripProgressBar();
+            this.txtLastError = new TextBox();
+            this.label5 = new Label();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -65,19 +72,34 @@
             ((System.ComponentModel.ISupportInitialize)this.invalidEntriesGrid).BeginInit();
             this.panel7.SuspendLayout();
             this.panel5.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
             this.panel1.BackColor = Color.Black;
+            this.panel1.Controls.Add(this.label5);
+            this.panel1.Controls.Add(this.txtLastError);
+            this.panel1.Controls.Add(this.CmdTestDownload);
             this.panel1.Controls.Add(this.chkClipboardMonitor);
             this.panel1.Controls.Add(this.cmdBrowseFolder);
             this.panel1.Dock = DockStyle.Left;
             this.panel1.ForeColor = Color.White;
             this.panel1.Location = new Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new Size(208, 538);
+            this.panel1.Size = new Size(208, 516);
             this.panel1.TabIndex = 0;
+            // 
+            // CmdTestDownload
+            // 
+            this.CmdTestDownload.FlatStyle = FlatStyle.Flat;
+            this.CmdTestDownload.Location = new Point(12, 85);
+            this.CmdTestDownload.Name = "CmdTestDownload";
+            this.CmdTestDownload.Size = new Size(185, 42);
+            this.CmdTestDownload.TabIndex = 2;
+            this.CmdTestDownload.Text = "Testar download";
+            this.CmdTestDownload.UseVisualStyleBackColor = true;
+            this.CmdTestDownload.Click += this.CmdTestDownload_Click;
             // 
             // chkClipboardMonitor
             // 
@@ -115,7 +137,7 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new Size(649, 487);
+            this.tableLayoutPanel1.Size = new Size(649, 465);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // panel4
@@ -126,7 +148,7 @@
             this.panel4.Dock = DockStyle.Fill;
             this.panel4.Location = new Point(431, 3);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new Size(215, 481);
+            this.panel4.Size = new Size(215, 459);
             this.panel4.TabIndex = 2;
             // 
             // undefinedEntriesGrid
@@ -139,7 +161,7 @@
             this.undefinedEntriesGrid.Dock = DockStyle.Fill;
             this.undefinedEntriesGrid.Location = new Point(0, 23);
             this.undefinedEntriesGrid.Name = "undefinedEntriesGrid";
-            this.undefinedEntriesGrid.Size = new Size(215, 411);
+            this.undefinedEntriesGrid.Size = new Size(215, 389);
             this.undefinedEntriesGrid.TabIndex = 2;
             // 
             // label3
@@ -160,7 +182,7 @@
             this.panel8.Controls.Add(this.undefinedEntriesStatus);
             this.panel8.Controls.Add(this.cmdSaveUndefined);
             this.panel8.Dock = DockStyle.Bottom;
-            this.panel8.Location = new Point(0, 434);
+            this.panel8.Location = new Point(0, 412);
             this.panel8.Name = "panel8";
             this.panel8.Size = new Size(215, 47);
             this.panel8.TabIndex = 4;
@@ -194,7 +216,7 @@
             this.panel2.Dock = DockStyle.Fill;
             this.panel2.Location = new Point(3, 3);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new Size(208, 481);
+            this.panel2.Size = new Size(208, 459);
             this.panel2.TabIndex = 0;
             // 
             // validEntriesGrid
@@ -207,7 +229,7 @@
             this.validEntriesGrid.Dock = DockStyle.Fill;
             this.validEntriesGrid.Location = new Point(0, 23);
             this.validEntriesGrid.Name = "validEntriesGrid";
-            this.validEntriesGrid.Size = new Size(208, 411);
+            this.validEntriesGrid.Size = new Size(208, 389);
             this.validEntriesGrid.TabIndex = 1;
             // 
             // panel6
@@ -215,7 +237,7 @@
             this.panel6.Controls.Add(this.validEntriesStatus);
             this.panel6.Controls.Add(this.cmdSaveValid);
             this.panel6.Dock = DockStyle.Bottom;
-            this.panel6.Location = new Point(0, 434);
+            this.panel6.Location = new Point(0, 412);
             this.panel6.Name = "panel6";
             this.panel6.Size = new Size(208, 47);
             this.panel6.TabIndex = 3;
@@ -262,7 +284,7 @@
             this.panel3.Dock = DockStyle.Fill;
             this.panel3.Location = new Point(217, 3);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new Size(208, 481);
+            this.panel3.Size = new Size(208, 459);
             this.panel3.TabIndex = 1;
             // 
             // invalidEntriesGrid
@@ -275,7 +297,7 @@
             this.invalidEntriesGrid.Dock = DockStyle.Fill;
             this.invalidEntriesGrid.Location = new Point(0, 23);
             this.invalidEntriesGrid.Name = "invalidEntriesGrid";
-            this.invalidEntriesGrid.Size = new Size(208, 411);
+            this.invalidEntriesGrid.Size = new Size(208, 389);
             this.invalidEntriesGrid.TabIndex = 2;
             // 
             // label2
@@ -296,7 +318,7 @@
             this.panel7.Controls.Add(this.invalidEntriesStatus);
             this.panel7.Controls.Add(this.cmdSaveInvalid);
             this.panel7.Dock = DockStyle.Bottom;
-            this.panel7.Location = new Point(0, 434);
+            this.panel7.Location = new Point(0, 412);
             this.panel7.Name = "panel7";
             this.panel7.Size = new Size(208, 47);
             this.panel7.TabIndex = 4;
@@ -328,7 +350,7 @@
             this.panel5.Controls.Add(this.txtFilter);
             this.panel5.Controls.Add(this.label4);
             this.panel5.Dock = DockStyle.Bottom;
-            this.panel5.Location = new Point(208, 487);
+            this.panel5.Location = new Point(208, 465);
             this.panel5.Name = "panel5";
             this.panel5.Size = new Size(649, 51);
             this.panel5.TabIndex = 2;
@@ -352,6 +374,54 @@
             this.label4.TabIndex = 0;
             this.label4.Text = "Busca por título ou autor:";
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new ToolStripItem[] { this.lblStatus, this.lblStep, this.progressBar });
+            this.statusStrip1.Location = new Point(0, 516);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new Size(857, 22);
+            this.statusStrip1.TabIndex = 3;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // lblStatus
+            // 
+            this.lblStatus.AutoSize = false;
+            this.lblStatus.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new Size(300, 17);
+            this.lblStatus.Text = "Pronto";
+            // 
+            // lblStep
+            // 
+            this.lblStep.Name = "lblStep";
+            this.lblStep.Size = new Size(0, 17);
+            // 
+            // progressBar
+            // 
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new Size(300, 16);
+            this.progressBar.Visible = false;
+            // 
+            // txtLastError
+            // 
+            this.txtLastError.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            this.txtLastError.Location = new Point(12, 157);
+            this.txtLastError.Multiline = true;
+            this.txtLastError.Name = "txtLastError";
+            this.txtLastError.ReadOnly = true;
+            this.txtLastError.ScrollBars = ScrollBars.Both;
+            this.txtLastError.Size = new Size(185, 352);
+            this.txtLastError.TabIndex = 3;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new Point(12, 139);
+            this.label5.Name = "label5";
+            this.label5.Size = new Size(70, 15);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Último erro:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new SizeF(7F, 15F);
@@ -360,6 +430,7 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.panel5);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.statusStrip1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += this.Form1_Load;
@@ -377,7 +448,10 @@
             this.panel7.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
         }
 
         #endregion
@@ -409,5 +483,12 @@
         private Button cmdSaveValid;
         private Button cmdSaveInvalid;
         private Button cmdSaveUndefined;
+        private Button CmdTestDownload;
+        private StatusStrip statusStrip1;
+        private ToolStripStatusLabel lblStatus;
+        private ToolStripProgressBar progressBar;
+        private ToolStripStatusLabel lblStep;
+        private Label label5;
+        private TextBox txtLastError;
     }
 }

@@ -17,26 +17,32 @@ namespace BibLib.Parsing
         };
 
         private readonly BibScanner scanner;
+        private readonly Action<int> progressCallback;
 
-        public BibParser(string data)
+        public BibParser(string data, Action<int> progressCallback = null)
         {
             this.adapter = new();
             this.scanner = new BibScanner(data);
+            this.progressCallback ??= ((_) => { });
         }
-        public BibParser(string data, A adapter)
+
+        public BibParser(string data, A adapter, Action<int> progressCallback = null)
         {
             this.adapter = adapter;
             this.scanner = new BibScanner(data);
+            this.progressCallback ??= ((_) => { });
         }
 
         public L Parse()
         {
             var response = adapter.CreateList();
             BibElement entry;
-
+            this.progressCallback.InvokeAsync(0);
             while ((entry = ParseEntry()) != null)
             {
                 adapter.AppendEntry(entry, response);
+                int progress = scanner.GetProgress();
+                progressCallback.InvokeAsync(progress);
             }
 
             return response;

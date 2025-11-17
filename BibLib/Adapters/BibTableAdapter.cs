@@ -99,5 +99,10 @@ namespace BibLib.Adapters
             sb.AppendLine();
 
         }
+
+        public int Count(DataTable entries)
+        {
+            return entries.Rows.Count;
+        }
     }
 }

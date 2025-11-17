@@ -323,5 +323,10 @@ namespace BibLib.Parsing
                 return string.Empty;
             }
         }
+
+        public int GetProgress()
+        {
+            return this.data == null || this.data.Length < 1 ? 100 : (int)((double)this.position / this.data.Length * 100);
+        }
     }
 }

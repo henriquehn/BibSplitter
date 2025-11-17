@@ -5,4 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="DodFramework.BaseTypes" Version="1.0.0" />
+    <PackageReference Include="DodFramework.DataLibrary" Version="1.0.0" />
+  </ItemGroup>
+
 </Project>

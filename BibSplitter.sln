@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibSplitter", "BibSplitter\BibSplitter.csproj", "{E924E5E9-60AC-495A-A5BE-0F3CB360014D}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibSettings", "BibSettings\BibSettings.csproj", "{6A3D24F3-4DC7-4310-9AC4-C9734E04CD63}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestLib", "TestLib\TestLib.vbproj", "{6249A838-1359-4EB3-9196-15DAD7E82A62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BibPdfDownloader", "BibPdfDownloader\BibPdfDownloader.csproj", "{A30A0C1A-1EA6-4899-923C-ABDFF81854E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,8 +41,15 @@ Global
 		{6249A838-1359-4EB3-9196-15DAD7E82A62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6249A838-1359-4EB3-9196-15DAD7E82A62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6249A838-1359-4EB3-9196-15DAD7E82A62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A30A0C1A-1EA6-4899-923C-ABDFF81854E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A30A0C1A-1EA6-4899-923C-ABDFF81854E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A30A0C1A-1EA6-4899-923C-ABDFF81854E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A30A0C1A-1EA6-4899-923C-ABDFF81854E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4BD5FCD9-44CD-4AAE-8810-EF40910F8EB0}
 	EndGlobalSection
 EndGlobal
