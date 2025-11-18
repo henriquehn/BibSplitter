@@ -3,13 +3,12 @@ using BibAnalyzer.Utils;
 using BibLib.Adapters;
 using BibLib.DataModels;
 using BibLib.Extensions;
-using BibLib.Interfaces;
 using BibLib.Parsing;
+using BibLib.Utils;
 using BibSettings;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Data;
 using System.Diagnostics;
-using System.Numerics;
 
 namespace BibAnalyzer
 {

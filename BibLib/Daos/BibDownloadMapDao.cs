@@ -15,9 +15,28 @@ namespace BibLib.Daos
             return instance.Insert(items);
         }
 
+        public static long Remove(BibDownloadMap item)
+        {
+            return instance.Delete(item);
+        }
+
         public static IList<BibDownloadMap> GetAll()
         {
             return instance.Select<List<BibDownloadMap>>();
+        }
+
+        public static IDictionary<string, BibDownloadMap> GetDictionary()
+        {
+            var response = new Dictionary<string, BibDownloadMap>(StringComparer.OrdinalIgnoreCase);
+            var results = GetAll();
+            foreach (var item in results)
+            {
+                if (!string.IsNullOrEmpty(item.Doi?.Trim()))
+                {
+                    response[item.Doi] = item;
+                }
+            }
+            return response;
         }
 
         public static IList<BibDownloadMap> Get(BibDownloadMap filter)

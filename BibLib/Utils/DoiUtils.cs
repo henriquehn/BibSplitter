@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace BibAnalyzer.Utils
+namespace BibLib.Utils
 {
     public static class DoiUtils
     {

@@ -1,0 +1,3 @@
+Esta pasta contém todos os arquivos PDF baixados a partir do DOI
+Para identificar o trabalho que está relacionado com cada arquivo,
+consulte a tabela "bib_download_map" no banco de dados "Database.sqlite"

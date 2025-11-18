@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 
-namespace BibAnalyzer.Utils
+namespace BibLib.Utils
 {
     public static class PdfUtils
     {
