@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace BibLib.Extensions
 {
-    public static class GeneralExtensions
+    public static class BibGeneralExtensions
     {
         public static string GetDescription(this Enum value)
         {

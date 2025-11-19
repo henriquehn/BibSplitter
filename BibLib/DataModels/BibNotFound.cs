@@ -1,4 +1,5 @@
-﻿using DodFramework.DataLibrary.DAO.Attributes.ItemAttributes;
+﻿using BibLib.Attributes;
+using DodFramework.DataLibrary.DAO.Attributes.ItemAttributes;
 
 namespace BibLib.DataModels
 {
@@ -7,10 +8,13 @@ namespace BibLib.DataModels
     {
         [FieldBehaviour(FieldIndexType.PrimaryIndex, FieldEditMode.AutoIncrementField)]
         [SourceField("Id")]
+        [TableColumn("ID",5)]
         public int? Id { get; set; }
         [SourceField("Doi")]
+        [TableColumn("DOI", -28, csvStringQualifier: @"""")]
         public string Doi { get; set; }
         [SourceField("Created_at")]
+        [TableColumn("Criado em", "dd/MM/yyyy")]
         public DateTime? CreatedAt { get; set; }
 
         public static implicit operator BibNotFound(BibElement other)

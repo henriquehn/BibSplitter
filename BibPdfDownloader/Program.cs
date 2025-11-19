@@ -1,9 +1,8 @@
 ﻿using BibLib.Daos;
 using BibLib.DataModels;
-using BibLib.Parsing;
+using BibLib.Extensions;
 using BibPdfDownloader.Services;
-using System.Net.NetworkInformation;
-using System.Xml.Linq;
+using System.Text;
 
 namespace BibPdfDownloader
 {
@@ -24,24 +23,42 @@ namespace BibPdfDownloader
         static void Main(string[] args)
         {
             service.Run();
-            ShowResults();
+            ShowResultList();
+            ShowFaillureList();
         }
 
-        private static void ShowResults()
+        private static void ShowResultList()
         {
+            var sbDownloaded = new System.Text.StringBuilder();
+            var sbNotDownloaded = new System.Text.StringBuilder();
+
             var maps = BibDownloadMapDao.GetAll();
-            var notFount = BibNotFoundDao.CountAll();
-            Console.WriteLine(new string('-', 152));
-            Console.WriteLine($"{"ID",5} | {"DOI",-28} | {"Arquivo",-88} | {"Paginas",7} | {"Criado em",-10}");
-            Console.WriteLine(new string('-', 152));
+            var notFount = BibNotFoundDao.GetAll();
+            sbDownloaded.AppendLine(BibPaeringExtensions.AsCsvTableHeader<BibDownloadMap>());
+            Console.WriteLine(BibPaeringExtensions.AsTableHeader<BibDownloadMap>());
             foreach (var map in maps)
             {
-                Console.WriteLine($"{map.Id,5} | {map.Doi,-28} | {map.FileName,-88} | {map.PageCount,7} | {map.CreatedAt:dd/MM/yyyy}");
+                Console.WriteLine(map.AsTableRow());
+                sbDownloaded.AppendLine(map.AsCsvRow());
             }
-            Console.WriteLine(new string('-', 152));
-            Console.WriteLine($"Total de registros: {maps.Count}");
-            Console.WriteLine($"PDFs indisponíveis: {notFount}");
-            Console.WriteLine(new string('-', 152));
+            Console.WriteLine(BibPaeringExtensions.AsTabFooter<BibDownloadMap>($"Total de registros: {maps.Count}"));
+            File.WriteAllText("with_pdf.csv", sbDownloaded.ToString(), Encoding.UTF8);
+            Console.WriteLine();
+            sbNotDownloaded.AppendLine(BibPaeringExtensions.AsCsvTableHeader<BibNotFound>());
+            Console.WriteLine(BibPaeringExtensions.AsTableHeader<BibNotFound>());
+            foreach (var item in notFount)
+            {
+                Console.WriteLine(item.AsTableRow());
+                sbNotDownloaded.AppendLine(item.AsCsvRow());
+            }
+            Console.WriteLine(BibPaeringExtensions.AsTabFooter<BibNotFound>($"PDFs indisponíveis: {notFount.Count}"));
+            File.WriteAllText("without_pdf.csv", sbNotDownloaded.ToString(), Encoding.UTF8);
+        }
+
+        private static void ShowFaillureList()
+        {
+            var maps = BibNotFoundDao.GetAll();
+            var notFount = BibNotFoundDao.CountAll();
         }
 
         private static void service_OnProgress(object sender, int percent)
