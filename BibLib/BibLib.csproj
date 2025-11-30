@@ -7,7 +7,11 @@
 
   <ItemGroup>
     <PackageReference Include="DodFramework.BaseTypes" Version="1.0.0" />
+    <PackageReference Include="DodFramework.CsvDriver" Version="1.0.0" />
     <PackageReference Include="DodFramework.DataLibrary" Version="1.0.0" />
+    <PackageReference Include="DodFramework.MySqlDriver" Version="1.0.1" />
+    <PackageReference Include="DodFramework.PostgreSqlDriver" Version="1.0.0" />
+    <PackageReference Include="DodFramework.Security" Version="1.0.0" />
   </ItemGroup>
 
 </Project>
