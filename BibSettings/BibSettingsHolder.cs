@@ -14,6 +14,7 @@ namespace BibSettings
                 return key?.GetValue(settings.ToString()) as string ?? defaultValue;
             }
         }
+
         public static void Save(DefaultBibSettings settings, string value, string appName = "BibSettingsHolder")
         {
             var registryPath=string.Format(RegistryBasePath, appName);
