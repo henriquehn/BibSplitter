@@ -1,4 +1,4 @@
-﻿using BibLib.DataModels;
+﻿using BibLib.DataModels.BibDownload;
 using BibLib.Interfaces;
 using System.Data;
 using System.Text;

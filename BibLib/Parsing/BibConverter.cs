@@ -1,5 +1,6 @@
 ﻿using BibLib.Adapters;
 using BibLib.DataModels;
+using BibLib.DataModels.BibDownload;
 using BibLib.Extensions;
 using BibLib.Interfaces;
 using Microsoft.VisualBasic.FileIO;

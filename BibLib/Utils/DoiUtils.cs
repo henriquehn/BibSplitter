@@ -1,11 +1,17 @@
-﻿using System.Net.Http.Headers;
+﻿using BibLib.DataModels.BibDownload;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace BibLib.Utils
 {
-    public static class DoiUtils
+    public static partial class DoiUtils
     {
+        private static string baseUrl = "https://sci-hub.st/"; // Alternativas: .se, .st, .ru
+        public const int MilissecondsBetweenFiles = 10000;
+        public const int MilissecondsBetweenPages = 1000;
+       
+
         /// <summary>
         /// Asynchronously retrieves the page count for a publication identified by its DOI using the Crossref API.
         /// </summary>
@@ -44,7 +50,7 @@ namespace BibLib.Utils
                 if (!doc.RootElement.TryGetProperty("message", out var msg)) return null;
 
                 // Tenta várias propriedades que podem conter informação de páginas
-                string? pages = TryGetString(msg, "page") ?? TryGetString(msg, "pages");
+                string pages = TryGetString(msg, "page") ?? TryGetString(msg, "pages");
                 if (string.IsNullOrWhiteSpace(pages))
                 {
                     // Alguns registros têm page-first / page-last
@@ -85,11 +91,6 @@ namespace BibLib.Utils
         }
 
         /// <summary>
-        /// Result for PDF fetch: bytes and best-effort filename.
-        /// </summary>
-        public sealed record PdfFetchResult(byte[] Bytes, string FileName);
-
-        /// <summary>
         /// Attempts to fetch a PDF for the given DOI and returns bytes plus a suggested file name.
         /// Strategies (in order):
         /// 1) Content negotiation against https://doi.org/{doi} with Accept: application/pdf
@@ -118,7 +119,7 @@ namespace BibLib.Utils
                     client.DefaultRequestHeaders.UserAgent.ParseAdd("BibAnalyzer/1.0 (mailto:your-email@example.com)");
                 }
 
-                string? crossrefTitle = null;
+                string crossrefTitle = null;
 
                 // Try Crossref early to possibly use title as filename fallback
                 try
@@ -281,7 +282,7 @@ namespace BibLib.Utils
                 return false;
             }
 
-            static async Task<PdfFetchResult?> TryDownloadUrlAsPdfWithNameAsync(HttpClient client, string url, string doi, string? crossrefTitle, CancellationToken ct)
+            static async Task<PdfFetchResult> TryDownloadUrlAsPdfWithNameAsync(HttpClient client, string url, string doi, string crossrefTitle, CancellationToken ct)
             {
                 try
                 {
@@ -322,12 +323,12 @@ namespace BibLib.Utils
                 }
             }
 
-            static async Task<PdfFetchResult?> TryDownloadIfPdfUrlWithNameAsync(HttpClient client, Uri uri, string doi, string? crossrefTitle, CancellationToken ct)
+            static async Task<PdfFetchResult> TryDownloadIfPdfUrlWithNameAsync(HttpClient client, Uri uri, string doi, string crossrefTitle, CancellationToken ct)
             {
                 return await TryDownloadUrlAsPdfWithNameAsync(client, uri.ToString(), doi, crossrefTitle, ct).ConfigureAwait(false);
             }
 
-            static string? GetFileNameFromResponse(HttpResponseMessage resp, string doi, string? crossrefTitle)
+            static string GetFileNameFromResponse(HttpResponseMessage resp, string doi, string crossrefTitle)
             {
                 // Try Content-Disposition
                 var cd = resp.Content.Headers.ContentDisposition;
@@ -394,11 +395,370 @@ namespace BibLib.Utils
                 return cleaned;
             }
 
-            static string? TryGetString(JsonElement el, string prop)
+            static string TryGetString(JsonElement el, string prop)
             {
                 if (el.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.String)
                     return v.GetString();
                 return null;
+            }
+        }
+
+        public static PdfFetchResult FetchAlternativePdf(
+            string doi,
+            HttpClient client = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(doi)) throw new ArgumentNullException(nameof(doi));
+            bool disposeClient = false;
+            if (client == null)
+            {
+                client = new HttpClient();
+                disposeClient = true;
+            }
+
+            try
+            {
+                string sciHubUrl = $"{baseUrl}{doi}";
+                string htmlContent = client.GetHtmlContent(sciHubUrl);
+                Thread.Sleep(MilissecondsBetweenPages); // Pequena pausa para evitar bloqueios por acesso rápido demais
+                string pdfUrl = ExtractPdfUrl(htmlContent);
+
+                if (string.IsNullOrEmpty(pdfUrl))
+                {
+                    return null;
+                }
+
+                var response = client.DownloadPdf(pdfUrl);
+                Thread.Sleep(MilissecondsBetweenPages); // Pequena pausa para evitar bloqueios por acesso rápido demais
+                response.Metadata = ExtractMetadata(htmlContent);
+
+                return response;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            finally
+            {
+                if (disposeClient) client?.Dispose();
+            }
+        }
+
+        static string GetHtmlContent(this HttpClient client, string url)
+        {
+            try
+            {
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+                client.DefaultRequestHeaders.Accept.ParseAdd("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+
+                var response = client.GetAsync(url);
+                response.Wait();
+                response.Result.EnsureSuccessStatusCode();
+
+                var content = response.Result.Content.ReadAsStringAsync();
+                content.Wait();
+                return content.Result;
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception($"Falha ao acessar a página: {ex.Message}");
+            }
+        }
+
+        static string ExtractPdfUrl(string html)
+        {
+            var matche = Regex.Match(html, @"href\s*=\s*""([^""]+\.pdf)""", RegexOptions.IgnoreCase);
+            if (matche.Success && matche.Groups.Count > 0)
+            {
+                string url = matche.Groups[1].Value;
+                // Completa URL relativa
+                if (url.StartsWith("http"))
+                {
+                    return url;
+                }
+                else if (url.StartsWith("//"))
+                {
+                    return $"https:{url}";
+                }
+                else if (url.StartsWith("/"))
+                {
+                    return $"{baseUrl.TrimEnd('/')}{url}";
+                }
+                else
+                {
+                    return $"{baseUrl}/{url}";
+                }
+            }
+            return null;
+        }
+        static string ExtractPdfUrl2(string html)
+        {
+            // Procura por iframe ou link direto do PDF
+            var patterns = new[]
+            {
+                "<iframe src=\"(.*?)\"",
+                "<embed src=\"(.*?)\"",
+                "location.href='(.*?\\.pdf)'",
+                "href=\"(.*?\\.pdf)\""
+            };
+
+            foreach (var pattern in patterns)
+            {
+                var match = Regex.Match(html, pattern, RegexOptions.IgnoreCase);
+
+                if (match.Success && match.Groups.Count > 1)
+                {
+                    string url = match.Groups[1].Value;
+
+                    // Completa URL relativa
+                    if (url.StartsWith("//"))
+                        return "https:" + url;
+                    else if (url.StartsWith("/"))
+                        return baseUrl.TrimEnd('/') + url;
+                    else if (!url.StartsWith("http"))
+                        return baseUrl.TrimEnd('/') + "/" + url;
+
+                    return url;
+                }
+            }
+
+            return null;
+        }
+
+        static BibElement ExtractMetadata(string html)
+        {
+            var metadata = new BibElement();
+
+            try
+            {
+                // Extrair título
+                var titleMatch = System.Text.RegularExpressions.Regex.Match(
+                    html,
+                    @"<title>(.*?)</title>",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                );
+
+                if (titleMatch.Success)
+                {
+                    string title = titleMatch.Groups[1].Value;
+                    title = title.Replace("Sci-Hub | ", "").Trim();
+                    metadata.Title = System.Net.WebUtility.HtmlDecode(title);
+                }
+
+                // Extrair autores (padrão comum em páginas acadêmicas)
+                var authorMatch = System.Text.RegularExpressions.Regex.Match(
+                    html,
+                    @"authors?[^>]*>([^<]+)<",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                );
+
+                if (authorMatch.Success)
+                {
+                    metadata.Authors = authorMatch.Groups[1].Value.Trim();
+                }
+
+                // Extrair DOI da página
+                var doiMatch = System.Text.RegularExpressions.Regex.Match(
+                    html,
+                    @"doi\.org/(10\.\d{4,9}/[-._;()/:A-Z0-9]+)",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                );
+
+                if (doiMatch.Success)
+                {
+                    metadata.Doi = doiMatch.Groups[1].Value;
+                }
+            }
+            catch
+            {
+                // Continua mesmo se extração de metadados falhar
+            }
+
+            return metadata;
+        }
+
+        public static PdfFetchResult DownloadPdf(this HttpClient client, string pdfUrl)
+        {
+            try
+            {
+                client.DefaultRequestHeaders.Referrer = new Uri(baseUrl);
+
+                var response = client.GetAsync(pdfUrl);
+                response.Wait();
+                response.Result.EnsureSuccessStatusCode();
+
+
+                var content = response.Result.Content.ReadAsByteArrayAsync();
+                content.Wait();
+                byte[] pdfBytes = content.Result;
+
+                string fileName = ExtractFileNameFromResponse(response.Result, pdfUrl);
+
+                return new PdfFetchResult(pdfBytes, fileName);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private static string ExtractFileNameFromResponse(HttpResponseMessage response, string pdfUrl)
+        {
+            // Tenta obter do cabeçalho Content-Disposition
+            if (response.Content.Headers.TryGetValues("Content-Disposition", out var dispositionValues))
+            {
+                var disposition = dispositionValues.FirstOrDefault();
+                if (!string.IsNullOrEmpty(disposition))
+                {
+                    // Procura por filename= no cabeçalho
+                    var match = Regex.Match(
+                        disposition,
+                        @"filename\*?=['""]?(?:UTF-8'')?([^'""\?;]*)['""]?",
+                        RegexOptions.IgnoreCase
+                    );
+
+                    if (match.Success && match.Groups.Count > 1)
+                    {
+                        string fileName = match.Groups[1].Value.Trim();
+                        if (!string.IsNullOrEmpty(fileName))
+                        {
+                            return Uri.UnescapeDataString(fileName);
+                        }
+                    }
+                }
+            }
+
+            // Se não encontrou no cabeçalho, tenta extrair da URL
+            if (!string.IsNullOrEmpty(pdfUrl))
+            {
+                try
+                {
+                    Uri uri = new Uri(pdfUrl);
+                    string urlFileName = Path.GetFileName(uri.LocalPath);
+                    if (!string.IsNullOrEmpty(urlFileName))
+                    {
+                        return urlFileName;
+                    }
+                }
+                catch
+                {
+                    // Ignora erros de parsing da URL
+                }
+            }
+
+            // Nome padrão se não conseguir extrair
+            return $"document_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves page count, title and abstract for a publication identified by its DOI using the Crossref API.
+        /// </summary>
+        /// <param name="doi">The Digital Object Identifier (DOI) of the publication. Cannot be null/empty.</param>
+        /// <param name="client">Optional HttpClient. If null a new instance will be created and disposed.</param>
+        /// <returns>A <see cref="PublicationInfo"/> with PageCount, Title and Abstract when available; otherwise null on failure.</returns>
+        public static async Task<BibElement> GetPaperInfoAsync(string doi, HttpClient client = null)
+        {
+            if (string.IsNullOrWhiteSpace(doi)) throw new ArgumentNullException(nameof(doi));
+            bool disposeClient = false;
+            if (client == null)
+            {
+                client = new HttpClient();
+                disposeClient = true;
+            }
+
+            try
+            {
+                // Crossref etiquette: include contact in User-Agent
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("MyApp/1.0 (mailto:seu-email@exemplo.com)");
+
+                string url = $"https://api.crossref.org/works/{Uri.EscapeDataString(doi)}";
+                using var resp = await client.GetAsync(url).ConfigureAwait(false);
+                if (!resp.IsSuccessStatusCode) return null;
+
+                using var stream = await resp.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                using var doc = await JsonDocument.ParseAsync(stream).ConfigureAwait(false);
+
+                if (!doc.RootElement.TryGetProperty("message", out var msg)) return null;
+
+                // --- Extract title ---
+                string title = null;
+                if (msg.TryGetProperty("title", out var titleEl))
+                {
+                    if (titleEl.ValueKind == JsonValueKind.Array && titleEl.GetArrayLength() > 0 && titleEl[0].ValueKind == JsonValueKind.String)
+                        title = titleEl[0].GetString();
+                    else if (titleEl.ValueKind == JsonValueKind.String)
+                        title = titleEl.GetString();
+                }
+
+                // --- Extract abstract/summary (may contain HTML) ---
+                string rawAbstract = TryGetString(msg, "abstract");
+                string cleanAbstract = null;
+                if (!string.IsNullOrWhiteSpace(rawAbstract))
+                {
+                    // Crossref often returns abstract with HTML markup; decode and strip tags
+                    cleanAbstract = StripHtml(rawAbstract);
+                }
+
+                // --- Extract pages (several possible fields) ---
+                string pages = TryGetString(msg, "page") ?? TryGetString(msg, "pages");
+                if (string.IsNullOrWhiteSpace(pages))
+                {
+                    var first = TryGetString(msg, "page-first");
+                    var last = TryGetString(msg, "page-last");
+                    if (!string.IsNullOrWhiteSpace(first) && !string.IsNullOrWhiteSpace(last))
+                    {
+                        pages = $"{first}-{last}";
+                    }
+                }
+
+                int? pageCount = null;
+                if (!string.IsNullOrWhiteSpace(pages))
+                {
+                    // extract integers
+                    var nums = Regex.Matches(pages, @"\d+")
+                                    .Select(m => int.Parse(m.Value))
+                                    .ToArray();
+                    if (nums.Length == 0)
+                    {
+                        pageCount = null;
+                    }
+                    else if (nums.Length == 1)
+                    {
+                        // single number -> treat as 1 page (or unknown); keep original behavior
+                        pageCount = 1;
+                    }
+                    else
+                    {
+                        int min = nums.Min();
+                        int max = nums.Max();
+                        if (max < min) (min, max) = (max, min);
+                        pageCount = Math.Abs(max - min) + 1;
+                    }
+                }
+
+                // Return all available metadata (even if pageCount is null)
+                return new BibElement { PageCount = pageCount, Title = title, Abstract = cleanAbstract };
+            }
+            finally
+            {
+                if (disposeClient) client?.Dispose();
+            }
+
+            static string TryGetString(JsonElement el, string prop)
+            {
+                if (el.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.String)
+                    return v.GetString();
+                return null;
+            }
+
+            static string StripHtml(string input)
+            {
+                if (string.IsNullOrWhiteSpace(input)) return input;
+                // decode HTML entities then remove tags
+                var decoded = System.Net.WebUtility.HtmlDecode(input);
+                // remove tags like <jats:p> etc.
+                var noTags = Regex.Replace(decoded, "<.*?>", string.Empty);
+                return noTags.Trim();
             }
         }
     }

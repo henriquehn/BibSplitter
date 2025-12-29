@@ -1,5 +1,4 @@
-﻿
-using BibLib.DataModels;
+﻿using BibLib.DataModels.BibDownload;
 using BibLib.Exceptions;
 using BibLib.Extensions;
 using BibLib.Interfaces;

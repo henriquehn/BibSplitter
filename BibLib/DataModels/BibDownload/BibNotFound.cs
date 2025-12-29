@@ -1,7 +1,7 @@
 ﻿using BibLib.Attributes;
 using DodFramework.DataLibrary.DAO.Attributes.ItemAttributes;
 
-namespace BibLib.DataModels
+namespace BibLib.DataModels.BibDownload
 {
     [SourceTable("bib_not_found")]
     public class BibNotFound
@@ -16,12 +16,15 @@ namespace BibLib.DataModels
         [SourceField("Created_at")]
         [TableColumn("Criado em", "dd/MM/yyyy")]
         public DateTime? CreatedAt { get; set; }
+        [SourceField("Deleted")]
+        [TableColumn("Excluido", -9)]
+        public bool? Deleted { get; set; }
 
         public static implicit operator BibNotFound(BibElement other)
         {
             return new BibNotFound
             {
-                Doi = other.DOI,
+                Doi = other.Doi,
                 CreatedAt = DateTime.Now
             };
         }

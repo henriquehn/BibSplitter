@@ -1,29 +1,24 @@
 ﻿using BibLib.Daos;
-using BibLib.DataModels;
+using BibLib.DataModels.BibDownload;
+using BibLib.Enums;
+using BibLib.Extensions;
 using BibLib.Parsing;
+using BibLib.ServiceModels;
 using BibLib.Utils;
-using System.Diagnostics;
+using System.Text;
 
 namespace BibPdfDownloader.Services
 {
-    public class BibService
+    public class PdfDownloadService: ServiceBase
     {
         private readonly string inputFile;
 
-        public event EventHandler<int> OnProgress;
-        public event EventHandler<StatusMessage> OnStatus;
-
-        public BibService(string inputFile = "Indefinidos.bib")
+        public PdfDownloadService(string inputFile = "Indefinidos.bib")
         {
             this.inputFile = inputFile;
         }
 
-        public void Run()
-        {
-            RunAsync().Wait();
-        }
-
-        public async Task RunAsync()
+        public override async Task<bool> RunAsync()
         {
             BibElements elements;
             IDictionary<string, BibDownloadMap> maps;
@@ -40,21 +35,21 @@ namespace BibPdfDownloader.Services
             catch (Exception ex)
             {
                 ShowStatus(MessageTypeEnum.Error, "Erro ao carregar referências", ex.Message);
-                return;
+                return false;
             }
 
             ShowStatus(MessageTypeEnum.Warning, $"Carregando registros de histórico...");
             try
             {
                 maps = BibDownloadMapDao.GetDictionary();
-                notFoundMaps = BibNotFoundDao.GetDictionary();
+                notFoundMaps = BibNotFoundDao.GetNotDeletedDictionary ();
                 ShowStatus($"Registros de arquivos baixados: {maps.Count}");
                 ShowStatus($"Registros de arquivos não encontrados: {notFoundMaps.Count}");
             }
             catch (Exception ex)
             {
                 ShowStatus(MessageTypeEnum.Error, "Erro ao carregar histórico de referências", ex.Message);
-                return;
+                return false;
             }
             
             ShowStatus("Identificando referências com download pendente...");
@@ -67,8 +62,8 @@ namespace BibPdfDownloader.Services
                     currentCount++;
                     ShowProgress(currentCount, count);
                     element.Title = element.TryGetValue("title", out string title) ? title : null;
-                    element.DOI = element.TryGetValue("doi", out string doi) ? doi : null;
-                    if (!(string.IsNullOrEmpty(element.DOI) || maps.ContainsKey(element.DOI) || notFoundMaps.ContainsKey(element.DOI)))
+                    element.Doi = element.TryGetValue("doi", out string doi) ? doi : null;
+                    if (!(string.IsNullOrEmpty(element.Doi) || maps.ContainsKey(element.Doi) || notFoundMaps.ContainsKey(element.Doi)))
                     {
                         unknownReferences.Add(element);
                     }
@@ -79,7 +74,7 @@ namespace BibPdfDownloader.Services
             catch (Exception ex)
             {
                 ShowStatus(MessageTypeEnum.Error, "Erro ao identificar referências com download pendente", ex.Message);
-                return;
+                return false;
             }
             
             ShowStatus("Baixando referências pendentes...");
@@ -91,11 +86,11 @@ namespace BibPdfDownloader.Services
                 {
                     currentCount++;
                     ShowProgress(currentCount, count);
-                    if (!maps.ContainsKey(element.DOI))
+                    if (!maps.ContainsKey(element.Doi))
                     {
                         try
                         {
-                            var downloadData = await DoiUtils.FetchPdfAsync(element.DOI);
+                            var downloadData = await DoiUtils.FetchPdfAsync(element.Doi);
                             element.PageCount = downloadData == null ? -1 : PdfUtils.GetPageCount(downloadData.Bytes);
 
                             if (downloadData != null)
@@ -103,22 +98,22 @@ namespace BibPdfDownloader.Services
                                 element["numpages"] = element.PageCount.ToString();
                                 BibDownloadMap map = element;
                                 map.FileName = downloadData.FileName;
-                                maps.Add(element.DOI, map);
+                                maps.Add(element.Doi, map);
                                 BibDownloadMapDao.Create(map);
                                 File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "downloaded", downloadData.FileName), downloadData.Bytes);
                             }
                             else
                             {
                                 BibNotFound map = element;
-                                notFoundMaps.Add(element.DOI, map);
+                                notFoundMaps.Add(element.Doi, map);
                                 BibNotFoundDao.Create(map);
                                 //ShowStatus(MessageTypeEnum.Warning, $"PDF indisponível: \"{element.DOI}\"");
                             }
                         }
                         catch (Exception ex)
                         {
-                            ShowStatus(MessageTypeEnum.Error, $"Erro ao baixar documento \"{element.DOI}\"", ex.Message);
-                            return;
+                            ShowStatus(MessageTypeEnum.Error, $"Erro ao baixar documento \"{element.Doi}\"", ex.Message);
+                            return false;
                         }
                     }
                 }
@@ -126,43 +121,53 @@ namespace BibPdfDownloader.Services
             catch (Exception ex)
             {
                 ShowStatus(MessageTypeEnum.Error, "Erro ao baixar PDFs das referências pendentes", ex.Message);
-                return;
+                return false;
             }
 
             ShowStatus("Operação concluída.");
+            return true;
         }
 
-        private void ShowProgress(int currentCount, int count)
+        public override string GetSumary()
         {
-            ShowProgress((int)((currentCount / (double)count) * 100));
+            var sb = new StringBuilder();
+            ShowResultList(sb);
+            //ShowFaillureList(sb);
+            return sb.ToString();
         }
 
-        private void ShowProgress(int percent)
+        private static void ShowResultList(StringBuilder sb)
         {
-            try
+            var sbDownloaded = new StringBuilder();
+            var sbNotDownloaded = new StringBuilder();
+
+            var maps = BibDownloadMapDao.GetAll();
+            var notFount = BibNotFoundDao.GetAll();
+            sbDownloaded.AppendLine(BibPaeringExtensions.AsCsvTableHeader<BibDownloadMap>());
+            sb.AppendLine(BibPaeringExtensions.AsTableHeader<BibDownloadMap>());
+            foreach (var map in maps)
             {
-                OnProgress?.Invoke(this, percent);
+                sb.AppendLine(map.AsTableRow());
+                sbDownloaded.AppendLine(map.AsCsvRow());
             }
-            catch { }
-        }
-
-        private void ShowStatus(string message)
-        {
-            ShowStatus(MessageTypeEnum.Info, "", message);
-        }
-
-        private void ShowStatus(MessageTypeEnum messageType, string message)
-        {
-            ShowStatus(messageType, "", message);
-        }
-
-        private void ShowStatus(MessageTypeEnum messageType, string title, string message)
-        {
-            try
+            sb.AppendLine(BibPaeringExtensions.AsTabFooter<BibDownloadMap>($"Total de registros: {maps.Count}"));
+            File.WriteAllText("with_pdf.csv", sbDownloaded.ToString(), Encoding.UTF8);
+            sb.AppendLine();
+            sbNotDownloaded.AppendLine(BibPaeringExtensions.AsCsvTableHeader<BibNotFound>());
+            sb.AppendLine(BibPaeringExtensions.AsTableHeader<BibNotFound>());
+            foreach (var item in notFount)
             {
-                OnStatus?.Invoke(this, new StatusMessage(messageType, title, message));
+                sb.AppendLine(item.AsTableRow());
+                sbNotDownloaded.AppendLine(item.AsCsvRow());
             }
-            catch { }
+            sb.AppendLine(BibPaeringExtensions.AsTabFooter<BibNotFound>($"PDFs indisponíveis: {notFount.Count}"));
+            File.WriteAllText("without_pdf.csv", sbNotDownloaded.ToString(), Encoding.UTF8);
         }
+
+        //private static void ShowFaillureList(StringBuilder sb)
+        //{
+        //    var maps = BibNotFoundDao.GetNotDeleted();
+        //    var notFount = BibNotFoundDao.CountNotDeleted();
+        //}
     }
 }

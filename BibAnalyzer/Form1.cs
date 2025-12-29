@@ -1,7 +1,7 @@
 using BibAnalyzer.Enums;
 using BibAnalyzer.Utils;
 using BibLib.Adapters;
-using BibLib.DataModels;
+using BibLib.DataModels.BibDownload;
 using BibLib.Extensions;
 using BibLib.Parsing;
 using BibLib.Utils;
@@ -336,9 +336,9 @@ namespace BibAnalyzer
                     {
                         currentStep++;
                         sourceForm.Progress = (int)((currentStep / (double)stepCount) * 100);
-                        entry.Title = entry.GetValueOrDefault("title")?.Trim().TrimEnd('.', ' ');
-                        entry.Authors = entry.GetValueOrDefault("author")?.Trim().TrimEnd('.', ' ');
-                        entry.DOI = entry.GetValueOrDefault("doi")?.Trim().TrimEnd('.', ' ');
+                        //entry.Title = entry.GetValueOrDefault("title")?.Trim().TrimEnd('.', ' ');
+                        //entry.Authors = entry.GetValueOrDefault("author")?.Trim().TrimEnd('.', ' ');
+                        //entry.Doi = entry.GetValueOrDefault("doi")?.Trim().TrimEnd('.', ' ');
 
                         if (entry.TryGetValue("numpages", out string value) && int.TryParse(value, out int numpages))
                         {
@@ -378,7 +378,7 @@ namespace BibAnalyzer
                                 else
                                 {
                                     entry.PageCount = null;
-                                    if (string.IsNullOrEmpty(entry.DOI))
+                                    if (string.IsNullOrEmpty(entry.Doi))
                                     {
                                         sourceForm.AppendUndefined(entry);
                                     }
@@ -390,7 +390,7 @@ namespace BibAnalyzer
                             }
                             else
                             {
-                                if (string.IsNullOrEmpty(entry.DOI))
+                                if (string.IsNullOrEmpty(entry.Doi))
                                 {
                                     sourceForm.AppendUndefined(entry);
                                 }
@@ -420,7 +420,7 @@ namespace BibAnalyzer
                                 {
                                     currentStep++;
                                     sourceForm.Progress = (int)((currentStep / (double)stepCount) * 100);
-                                    var count = await DoiUtils.GetPageCountAsync(entry.DOI, client).ConfigureAwait(false);
+                                    var count = await DoiUtils.GetPageCountAsync(entry.Doi, client).ConfigureAwait(false);
                                     if (count.HasValue)
                                     {
                                         entry.PageCount = count.Value;

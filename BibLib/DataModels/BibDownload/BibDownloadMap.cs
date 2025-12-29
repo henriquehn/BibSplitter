@@ -2,7 +2,7 @@
 using DodFramework.DataLibrary.DAO.Attributes.ItemAttributes;
 using System.Xml.Linq;
 
-namespace BibLib.DataModels
+namespace BibLib.DataModels.BibDownload
 {
     [SourceTable("bib_download_map")]
     public class BibDownloadMap
@@ -12,7 +12,7 @@ namespace BibLib.DataModels
         [TableColumn("ID", 5)]
         public int? Id { get; set; }
         [SourceField("Doi")]
-        [TableColumn("DOI", -28,csvStringQualifier:@"""")]
+        [TableColumn("DOI", -28, csvStringQualifier: @"""")]
         public string Doi { get; set; }
         [SourceField("File_name")]
         [TableColumn("Arquivo", -130, csvStringQualifier: @"""")]
@@ -28,10 +28,20 @@ namespace BibLib.DataModels
         {
             return new BibDownloadMap
             {
-                Doi = other.DOI,
+                Doi = other.Doi,
                 PageCount = other.PageCount ?? -1,
                 CreatedAt = DateTime.Now
             };
         }
+
+        public static implicit operator BibDownloadMap(BibNotFound other)
+        {
+            return new BibDownloadMap
+            {
+                Doi = other.Doi,
+                CreatedAt = DateTime.Now
+            };
+        }
+
     }
 }

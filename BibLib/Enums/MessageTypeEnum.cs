@@ -1,4 +1,4 @@
-﻿namespace BibPdfDownloader
+﻿namespace BibLib.Enums
 {
     public enum MessageTypeEnum
     {

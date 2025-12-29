@@ -1,4 +1,6 @@
-﻿namespace BibPdfDownloader.Services
+﻿using BibLib.Enums;
+
+namespace BibLib.DataModels
 {
     public class StatusMessage
     {

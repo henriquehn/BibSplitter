@@ -1,4 +1,4 @@
-﻿using BibLib.DataModels;
+﻿using BibLib.DataModels.BibDownload;
 using BibLib.Utils;
 using DodFramework.DataLibrary.DAO.Homl;
 
