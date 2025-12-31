@@ -55,9 +55,9 @@ namespace BibLib.Parsing
     {
         private static readonly A adapter = new();
 
-        public static L Deserialize(string data, Action<int> progressCallback = null)
+        public static L Deserialize(string data, Action<int> progressCallback = null, string source = null, Func<BibElement, bool> includeFunction = null)
         {
-            var parser = new BibParser<T, L, A>(data, adapter, progressCallback);
+            var parser = new BibParser<T, L, A>(data, adapter, progressCallback, source, includeFunction);
             return parser.Parse();
         }
 

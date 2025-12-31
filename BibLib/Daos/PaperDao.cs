@@ -1,4 +1,5 @@
-﻿using BibLib.DataModels.PaperManager;
+﻿using BibLib.DataModels.BibDownload;
+using BibLib.DataModels.PaperManager;
 using BibLib.Utils;
 using DodFramework.DataLibrary.DAO.Homl;
 
@@ -8,7 +9,7 @@ namespace BibLib.Daos
     {
         public static PaperDao Instance { get; } = new PaperDao();
 
-        public PaperDao() : base(ConfigurationHelper.Get("MainDataSourceName"))
+        public PaperDao() : base(ConfigurationHelper.Get("PaperManager"))
         {
         }
 
@@ -19,6 +20,14 @@ namespace BibLib.Daos
             return response;
 
         }
+
+        public static IEnumerable<Paper> Create(BibElements values)
+        {
+            var papers = values.AsPapers();
+            Create(papers);
+            return papers;
+        }
+
 
         public static long Create(IEnumerable<Paper> values)
         {

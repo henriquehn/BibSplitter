@@ -1,10 +1,7 @@
-﻿using BibLib.Daos;
-using BibLib.DataModels;
+﻿using BibLib.DataModels;
 using BibLib.Enums;
-using BibLib.Extensions;
 using BibLib.Interfaces;
 using BibPdfDownloader.Services;
-using System.Text;
 
 namespace BibPdfDownloader
 {
@@ -17,7 +14,8 @@ namespace BibPdfDownloader
         static Program()
         {
             //service = new PdfDownloadService();
-            service = new AlternativePdfDownloadService();
+            service = new PaperManagerService();
+            //service = new AlternativePdfDownloadService();
             service.OnProgress += service_OnProgress;
             service.OnStatus += Service_OnStatus;
         }
@@ -66,8 +64,9 @@ namespace BibPdfDownloader
                         Console.BackgroundColor = ConsoleColor.White;
                         break;
                 }
-                Console.WriteLine($"\r\n({status.MessageType}) {status.Title}");
+                Console.Write($"\r\n({status.MessageType}) {status.Title.Trim()}");
                 Console.ResetColor();
+                Console.WriteLine();
                 Console.WriteLine($" {status.Message}");
                 lastPercent = -1;
             }

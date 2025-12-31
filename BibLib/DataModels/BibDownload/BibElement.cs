@@ -1,4 +1,5 @@
-﻿using BibLib.DataModels.PaperManager;
+﻿using BibLib.Daos;
+using BibLib.DataModels.PaperManager;
 using BibLib.Interfaces;
 using BibLib.Parsing;
 using System.Text.Json.Serialization;
@@ -63,6 +64,8 @@ namespace BibLib.DataModels.BibDownload
             }
         }
 
+        public string Source { get; set; }
+
         public BibElement() : base(StringComparer.OrdinalIgnoreCase) { }
 
         public static implicit operator Paper(BibElement element)
@@ -81,6 +84,7 @@ namespace BibLib.DataModels.BibDownload
             {
                 response.AppendColumn(item.Key, item.Value);
             }
+            response.Source = SourceDao.Sources[element.Source];
 
             return response;
         }

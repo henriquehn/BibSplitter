@@ -8,7 +8,7 @@ namespace BibLib.Daos
     {
         public static PaperColumnDao Instance { get; } = new PaperColumnDao();
 
-        public PaperColumnDao() : base(ConfigurationHelper.Get("MainDataSourceName"))
+        public PaperColumnDao() : base(ConfigurationHelper.Get("PaperManager"))
         {
         }
 

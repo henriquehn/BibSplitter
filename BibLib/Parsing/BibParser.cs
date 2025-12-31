@@ -17,6 +17,8 @@ namespace BibLib.Parsing
 
         private readonly BibScanner scanner;
         private readonly Action<int> progressCallback;
+        private readonly string source;
+        private Func<BibElement, bool> includeFunction;
 
         public BibParser(string data, Action<int> progressCallback = null)
         {
@@ -25,11 +27,13 @@ namespace BibLib.Parsing
             this.progressCallback ??= ((_) => { });
         }
 
-        public BibParser(string data, A adapter, Action<int> progressCallback = null)
+        public BibParser(string data, A adapter, Action<int> progressCallback = null, string source = null, Func<BibElement, bool> includeFunction = null)
         {
             this.adapter = adapter;
             this.scanner = new BibScanner(data);
-            this.progressCallback ??= ((_) => { });
+            this.progressCallback = progressCallback ?? ((_) => { });
+            this.includeFunction = includeFunction ?? (static (_) => { return true; });
+            this.source = source;
         }
 
         public L Parse()
@@ -39,7 +43,10 @@ namespace BibLib.Parsing
             this.progressCallback.InvokeAsync(0);
             while ((entry = ParseEntry()) != null)
             {
-                adapter.AppendEntry(entry, response);
+                if (includeFunction.Invoke(entry))
+                {
+                    adapter.AppendEntry(entry, response);
+                }
                 int progress = scanner.GetProgress();
                 progressCallback.InvokeAsync(progress);
             }
@@ -73,7 +80,8 @@ namespace BibLib.Parsing
             var result = new BibElement
             {
                 Type = type,
-                Key = key.Value
+                Key = key.Value,
+                Source = this.source,
             };
 
             while (Peek(BibTokenType.Comma))

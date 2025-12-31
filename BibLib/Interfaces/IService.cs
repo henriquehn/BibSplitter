@@ -6,7 +6,7 @@ namespace BibLib.Interfaces
     {
         event EventHandler<int> OnProgress;
         event EventHandler<StatusMessage> OnStatus;
-        void Run();
+        bool Run();
         Task<bool> RunAsync();
         string GetSumary();
     }

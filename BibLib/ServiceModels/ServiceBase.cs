@@ -1,21 +1,47 @@
-﻿using BibLib.DataModels;
+﻿using BibLib.Collections;
+using BibLib.DataModels;
 using BibLib.Enums;
 using BibLib.Interfaces;
 
 namespace BibLib.ServiceModels
 {
-    public abstract class ServiceBase : IService
+    public abstract partial class ServiceBase : IService
     {
         public event EventHandler<int> OnProgress;
         public event EventHandler<StatusMessage> OnStatus;
+        /// <summary>
+        /// Mantém um estado compartilhado entre todos os serviços.
+        /// </summary>
+        protected static ThreadSafeStateMachine SharedState { get; } = new();
+        /// <summary>
+        /// Mantém um estado local para cada instância do serviço.
+        /// </summary>
+        protected ThreadSafeStateMachine LocalState { get; } = new();
+        public string Name { get; }
+        public string Description { get; }
 
-        public void Run()
+        public ServiceBase(string name, string description)
         {
-            RunAsync().Wait();
+            this.Name = name;
+            this.Description = description;
+        }
+        public ServiceBase()
+        {
+            this.Name = this.GetType().Name;
+            this.Description = this.Name;
+        }
+
+        public bool Run()
+        {
+            return RunAsync().Result;
         }
 
         public abstract Task<bool> RunAsync();
-        public abstract string GetSumary();
+
+        public virtual string GetSumary()
+        {
+            return "";
+        }
 
         protected void ShowProgress(int currentCount, int count)
         {
@@ -46,6 +72,24 @@ namespace BibLib.ServiceModels
             try
             {
                 OnStatus?.Invoke(this, new StatusMessage(messageType, title, message));
+            }
+            catch { }
+        }
+
+        protected void RaiseProgress(object sender, int percent)
+        {
+            try
+            {
+                OnProgress?.Invoke(sender, percent);
+            }
+            catch { }
+        }
+
+        protected void RaiseStatus(object sender, StatusMessage status)
+        {
+            try
+            {
+                OnStatus?.Invoke(sender, status);
             }
             catch { }
         }
