@@ -14,8 +14,19 @@ namespace BibLib.DataModels.BibDownload
         {
             foreach (var element in this)
             {
-                Paper paper = element;
-                yield return paper;
+                yield return Parse(element);
+            }
+        }
+
+        private static Paper Parse(BibElement value)
+        {
+            try
+            {
+                return value;
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

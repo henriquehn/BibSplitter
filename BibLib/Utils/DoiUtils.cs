@@ -573,7 +573,8 @@ namespace BibLib.Utils
             {
                 // Continua mesmo se extração de metadados falhar
             }
-
+            metadata.CreateHash();
+            metadata.CountPages();
             return metadata;
         }
 

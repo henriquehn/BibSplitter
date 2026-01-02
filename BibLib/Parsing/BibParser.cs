@@ -18,22 +18,26 @@ namespace BibLib.Parsing
         private readonly BibScanner scanner;
         private readonly Action<int> progressCallback;
         private readonly string source;
+        private string file;
         private Func<BibElement, bool> includeFunction;
+        private BibToken PreviousToken;
 
         public BibParser(string data, Action<int> progressCallback = null)
         {
             this.adapter = new();
             this.scanner = new BibScanner(data);
-            this.progressCallback ??= ((_) => { });
+            this.progressCallback = progressCallback ?? (static (_) => { });
+            this.includeFunction = (static (_) => true);
         }
 
-        public BibParser(string data, A adapter, Action<int> progressCallback = null, string source = null, Func<BibElement, bool> includeFunction = null)
+        public BibParser(string data, A adapter, Action<int> progressCallback = null, string source = null, string file = null, Func<BibElement, bool> includeFunction = null)
         {
             this.adapter = adapter;
             this.scanner = new BibScanner(data);
-            this.progressCallback = progressCallback ?? ((_) => { });
-            this.includeFunction = includeFunction ?? (static (_) => { return true; });
+            this.progressCallback = progressCallback ?? (static (_) => { });
+            this.includeFunction = includeFunction ?? (static (_) => true);
             this.source = source;
+            this.file = file;
         }
 
         public L Parse()
@@ -75,13 +79,32 @@ namespace BibLib.Parsing
 
             var type = Enum.Parse<BibType>(entryType.Value, ignoreCase: true);
             Parse(BibTokenType.OpenBrace);
-            var key = Parse(BibTokenType.FieldName);
+
+
+            BibToken key;
+            /* Estamos esperando a chave do elemento, mas o arquivo pode estar mal formado */
+            if (Peek(BibTokenType.Comma))
+            {
+                /* Está mal formado, vamos atribuir uma chave automática */
+                key = new BibToken
+                {
+                    Type = BibTokenType.FieldName,
+                    Value = Guid.NewGuid().ToString(),
+                    Position = this.scanner.Position,
+                };
+            }
+            else
+            {
+                /* Parece seguro prosseguir */
+                key = Parse(BibTokenType.FieldName);
+            }
 
             var result = new BibElement
             {
                 Type = type,
                 Key = key.Value,
                 Source = this.source,
+                File = this.file
             };
 
             while (Peek(BibTokenType.Comma))
@@ -120,7 +143,8 @@ namespace BibLib.Parsing
                 }
             }
             Parse(BibTokenType.CloseBrace);
-
+            result.CreateHash();
+            result.CountPages();
             return result;
         }
 
@@ -139,6 +163,7 @@ namespace BibLib.Parsing
                     throw new SyntaxError(token.Position, this.scanner.Position, $"{expectedTokens.Join(" or ")} was expected but {token.Type} was found");
                 }
             }
+            this.PreviousToken = token;
             return token;
         }
 

@@ -16,6 +16,10 @@ namespace BibLib.Parsing
         }
 
         public char CurrentChar { get => data[position]; }
+        private HashSet<char> ScapedChars = ['{', '}'];
+        private int lastTokenPos;
+
+        public char NextChar { get => data.Length > position + 1 ? data[position + 1] : '\0'; }
         public int Position { get { return this.position; } }
 
         private char? NextValidChar()
@@ -175,11 +179,21 @@ namespace BibLib.Parsing
         {
             var sb = new StringBuilder();
             var tokenPos = position;
+            this.lastTokenPos = position;
             if (lastToken == BibTokenType.OpenBrace)
             {
                 while (position < data.Length && (CurrentChar != '}'))
                 {
-                    if (CurrentChar == '{')
+                    if (CurrentChar == '\\' && ScapedChars.Contains(NextChar))
+                    {
+                        /* é um caractere de escape */
+                        sb.Append(CurrentChar);
+                        position++;
+                        /* passa direto pelo caractere seguinte */
+                        sb.Append(CurrentChar);
+                        position++;
+                    }
+                    else if (CurrentChar == '{')
                     {
                         sb.Append(ScanEscape());
                     }
@@ -212,7 +226,13 @@ namespace BibLib.Parsing
             while (position < data.Length && (level > 0 || CurrentChar != '}'))
             {
                 sb.Append(CurrentChar);
-                if (CurrentChar == '{')
+                if (CurrentChar == '\\' && ScapedChars.Contains(NextChar))
+                {
+                    /* é um caractere de escape, pula para o caractere seguinte*/
+                    position++;
+                    sb.Append(CurrentChar);
+                }
+                else if (CurrentChar == '{')
                 {
                     level++;
                 }

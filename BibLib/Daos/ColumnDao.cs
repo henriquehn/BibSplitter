@@ -8,8 +8,8 @@ namespace BibLib.Daos
 {
     public class ColumnDao: HomlDao<ColumnDto>
     {
-        public static ColumnDao Instance { get; } = new();
-        public static ColumHolder Columns { get; } = ColumnDao.CreateHolder();
+        public static readonly ColumnDao Instance = new();
+        public static readonly ColumHolder Columns = ColumnDao.CreateHolder();
 
 
         public ColumnDao() : base(ConfigurationHelper.Get("PaperManager"))

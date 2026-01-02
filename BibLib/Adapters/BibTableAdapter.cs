@@ -27,6 +27,8 @@ namespace BibLib.Adapters
                     response.Add(field.ColumnName, value[field].ToString());
                 }
             }
+            response.CreateHash();
+            response.CountPages();
             return response;
         }
         public void AppendEntry(IBibRecord entry, DataTable entries)

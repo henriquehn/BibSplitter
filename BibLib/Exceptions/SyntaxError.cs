@@ -6,19 +6,19 @@
         public int StartPosition { get; }
         public int EndPosition { get; }
 
-        public SyntaxError(int position): base($"Syntax arror at char {position}")
+        public SyntaxError(int position): base($"Syntax error at char {position}")
         {
             this.StartPosition = position;
             this.EndPosition = position;
         }
 
-        public SyntaxError(int position, string message): base($"Syntax arror at char {position}: {message}")
+        public SyntaxError(int position, string message): base($"Syntax error at char {position}: {message}")
         {
             this.StartPosition = position;
             this.EndPosition = position;
         }
 
-        public SyntaxError(int start, int end, string message): base($"Syntax arror at char range from {start} to {end}: {message}")
+        public SyntaxError(int start, int end, string message): base($"Syntax error at char range from {start} to {end}: {message}")
         {
             this.StartPosition = start;
             this.EndPosition = end;

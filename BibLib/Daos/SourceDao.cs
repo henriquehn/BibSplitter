@@ -7,8 +7,8 @@ namespace BibLib.Daos
 {
     public class SourceDao : HomlDao<Source>
     {
-        public static SourceDao Instance { get; } = new();
-        public static SourceHolder Sources { get; } = SourceDao.CreateHolder();
+        public static readonly SourceDao Instance = new();
+        public static readonly SourceHolder Sources = SourceDao.CreateHolder();
 
         public SourceDao() : base(ConfigurationHelper.Get("PaperManager"))
         {

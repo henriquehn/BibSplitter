@@ -55,9 +55,9 @@ namespace BibLib.Parsing
     {
         private static readonly A adapter = new();
 
-        public static L Deserialize(string data, Action<int> progressCallback = null, string source = null, Func<BibElement, bool> includeFunction = null)
+        public static L Deserialize(string data, Action<int> progressCallback = null, string source = null, string file = null, Func<BibElement, bool> includeFunction = null)
         {
-            var parser = new BibParser<T, L, A>(data, adapter, progressCallback, source, includeFunction);
+            var parser = new BibParser<T, L, A>(data, adapter, progressCallback, source, file, includeFunction);
             return parser.Parse();
         }
 
@@ -134,6 +134,8 @@ namespace BibLib.Parsing
                                     }
                                 }
                             }
+                            entry.CreateHash();
+                            entry.CountPages(); 
                             adapter.AppendEntry(entry, response);
                         }
                     }
