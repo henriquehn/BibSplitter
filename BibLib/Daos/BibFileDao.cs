@@ -42,5 +42,10 @@ namespace BibLib.Daos
                 return newValue;
             }
         }
+
+        public static bool Exists(string name)
+        {
+            return Instance.SelectOne(new BibFile { Name = name }) != null;
+        }
     }
 }
